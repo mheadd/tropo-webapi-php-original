@@ -6,7 +6,6 @@
  * http://www.voiceingov.org
  * 
  * A set of PHP classes for working with the Voxeo Tropo WebAPI
- * https://www.tropo.com/docs/webapi/
  *
  */
 
@@ -15,13 +14,19 @@
  *
  */
 class Tropo {
+	
+	const TROPO_QUERYSTRING = "tropo-engine=json";
+	
 	public $tropo = array();
 	
 	public function Ask(Ask $ask) {
 		$this->ask = sprintf($ask);
 	}
 
-	public function Conference(Conference $conference) {
+	public function Conference($conference) {
+		if(!is_object($conference)) {
+			$conference = new Conference($conference);
+		}
 		$this->conference = sprintf($conference);
 	}
 	
@@ -38,7 +43,11 @@ class Tropo {
 		$this->record = sprintf($record);
 	}
 	
-	public function Redirect(Redirect $redirect) {
+	public function Redirect($redirect) {
+		if(!is_object($redirect)) {
+			$to = new EndPointObject($redirect);
+			$redirect = new Redirect($to);
+		}
 		$this->redirect = sprintf($redirect);
 	}
 	
@@ -51,8 +60,11 @@ class Tropo {
 		$this->result = sprintf($result);
 	}
 	
-	public function Say(Say $say) {
-		$this->say = sprintf($say);
+	public function Say($say) {
+		if(!is_object($say)) {
+			$say = new Say($say);
+		} 
+		$this->say = array(sprintf($say));	
 	}
 	
 	public function StartRecording(StartRecording $startRecording) {
@@ -64,16 +76,30 @@ class Tropo {
 		$this->stopRecording = sprintf($stopRecording);
 	}
 	
-	public function Transfer(Transfer $transfer) {
+	public function Transfer($transfer) {
+		if(!is_object($transfer)) {
+			$to = new EndPointObject($transfer);
+			$transfer = new Transfer($to);
+		}
 		$this->transfer = sprintf($transfer);
 	}
 	
-	public function __set($name, $value) {
-		array_push($this->tropo, array($name => $value));
+	public function RenderJSON() {
+		header('Content-type: application/json');
+		echo $this;
 	}
 	
-	public function __toString() {
-		return str_replace(array("\\", "\"{", "}\""), array("", "{", "}"), json_encode($this));
+	private function __set($name, $value) {
+		array_push($this->tropo, array($name => $value));
+	}	
+	
+	private function __toString() {
+		if(!strstr($_SERVER['REQUEST_URI'], self::TROPO_QUERYSTRING)) {
+			die('*** Start URL for script must include querystring ?'.self::TROPO_QUERYSTRING.' ***');
+		} 
+		else {
+			return str_replace(array("\\", "\"{", "}\""), array("", "{", "}"), json_encode($this));	
+		}		
 	}
 	
 }
@@ -141,11 +167,11 @@ class Ask extends BaseClass {
 	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $requied=NULL, Say $say=NULL, $timeout=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
-		$this->_choices = sprintf($choices);
+		$this->_choices = isset($choices) ? sprintf($choices) : null ;
 		$this->_minConfidence = $minConfidence;
 		$this->_name = $name;
 		$this->_requied = $requied;
-		$this->_say = sprintf($say);
+		$this->_say = isset($say) ? sprintf($say) : null;
 		$this->_timeout = $timeout;		
 	}
 	
@@ -230,11 +256,11 @@ class Conference extends BaseClass {
 	 * @param boolean $required
 	 * @param string $terminator
 	 */
-	public function __construct($id=NULL, $mute=NULL, $name=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL) {
-		$this->_id = $id;
-		$this->_mute = $mute;
+	public function __construct($name, $id=NULL, $mute=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL) {
 		$this->_name = $name;
-		$this->_on = sprintf($on);
+		$this->_id = $id;
+		$this->_mute = $mute;		
+		$this->_on = isset($on) ? sprintf($on) : null;
 		$this->_playTones = $playTones;
 		$this->_required = $required;
 		$this->_terminator = $terminator;
@@ -245,9 +271,9 @@ class Conference extends BaseClass {
 	 *
 	 */
 	public function __toString() {
+		$this->name = $this->_name;
 		if(isset($this->_id)) { $this->id = $this->_id; }
 		if(isset($this->_mute)) { $this->mute = $this->_mute; }
-		if(isset($this->_name)) { $this->name = $this->_name; }
 		if(isset($this->_on)) { $this->on = $this->_on; }
 		if(isset($this->_playTones)) { $this->playTones = $this->_playTones; }
 		if(isset($this->_required)) { $this->required = $this->_required; }
@@ -282,7 +308,7 @@ class On extends BaseClass {
 	public function __construct($event=NULL, $next=NULL, Say $say=NULL) {
 		$this->_event = $event;
 		$this->_next = $next;
-		$this->_say = sprintf($say);
+		$this->_say = isset($say) ? sprintf($say) : null ;
 	}
 	
 	/**
@@ -336,12 +362,12 @@ class Record extends BaseClass {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_beep = $beep;
-		$this->_choices = sprintf($choices);
+		$this->_choices = isset($choices) ? sprintf($choices) : null;
 		$this->_format = $format;
 		$this->_maxSilence = $maxSilence;
 		$this->_method = $method;
 		$this->_password = $password;
-		$this->_say = sprintf($say);
+		$this->_say = isset($say) ? sprintf($say) : null;
 		$this->_timeout = $timeout;
 		$this->_username = $username;
 	}
@@ -381,9 +407,9 @@ class Redirect extends BaseClass {
 	 * @param EndpointObject $to
 	 * @param EndpointObject $from
 	 */
-	public function __construct(EndpointObject $to, EndpointObject $from=NULL) {
+	public function __construct($to, EndpointObject $from=NULL) {
 		$this->_to = sprintf($to);
-		$this->_from = sprintf($from);
+		$this->_from = isset($from) ? sprintf($from) : null;
 	}
 	
 	/**
@@ -525,21 +551,11 @@ class Say extends BaseClass {
 	 * @param string $event
 	 * @param Format $format
 	 */
-	public function __construct($value, SayAs $as=NULL, $event=NULL, Format $format=NULL) {
+	public function __construct($value, $as=NULL, $event=NULL, $format=NULL) {
 		$this->_value = $value;
 		$this->_as = $as;
 		$this->_event = $event;
-		if(is_object($format)) {
-			if(isset($format->date)) {
-				$this->_format = $format->date;
-			}
-			else {
-				$this->_format = $format->duration;
-			}
-		} else {
-			$this->_format = $format;
-		}
-		
+		$this->_format = $format;		
 	}
 	
 	/**
