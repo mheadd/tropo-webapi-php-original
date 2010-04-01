@@ -464,13 +464,13 @@ class Result {
 		$this->_complete = $result->result->complete;
 		$this->_error = $result->result->error;
 		$this->_actions = $result->result->actions;		
-		$this->_name = $result->result->actions[0]->name;
-		$this->_attempts = $result->result->actions[0]->attempts;
-		$this->_disposition = $result->result->actions[0]->disposition;
-		$this->_confidence = $result->result->actions[0]->confidence;
-		$this->_interpretation = $result->result->actions[0]->interpretation;
-		$this->_utterance = $result->result->actions[0]->utterance;
-		$this->_value = $result->result->actions[0]->value;
+		$this->_name = $result->result->actions->name;
+		$this->_attempts = $result->result->actions->attempts;
+		$this->_disposition = $result->result->actions->disposition;
+		$this->_confidence = $result->result->actions->confidence;
+		$this->_interpretation = $result->result->actions->interpretation;
+		$this->_utterance = $result->result->actions->utterance;
+		$this->_value = $result->result->actions->value;
 		
 	}
 	
