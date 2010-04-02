@@ -56,10 +56,6 @@ class Tropo {
 		$this->reject = sprintf($reject);
 	}
 	
-	public function Result(Result $result) {
-		$this->result = sprintf($result);
-	}
-	
 	public function Say($say) {
 		if(!is_object($say)) {
 			$say = new Say($say);
@@ -781,7 +777,7 @@ class EndpointObject extends BaseClass {
 
 
 /**
- * Attribute classes. These object are used with action classes to set option values.
+ * Helper classes. These object are used with action classes to set option values.
  *
  * TODO: Need to complete properties for attribute classes.
  */
@@ -789,12 +785,21 @@ class EndpointObject extends BaseClass {
 class Date {
 	public static $monthDayYear = "mdy";
 	public static $dayMonthYear = "dmy";
-	
+	public static $yearMonthDay = "ymd";
+	public static $yearMonth = "ym";
+	public static $monthYear = "my";
+	public static $monthDay = "md";
+	public static $year = "y";
+	public static $month = "m";
+	public static $day = "d";		
 }
 
 class Duration {
 	public static $hoursMinutesSeconds = "hms";
 	public static $hoursMinutes = "hm";	
+	public static $hours = "h";
+	public static $minutes = "m";
+	public static $seconds = "s";
 }
 
 class Event {
