@@ -13,7 +13,7 @@
  * The main Tropo class
  *
  */
-class Tropo {
+class Tropo extends BaseClass {
 	
 	public $tropo = array();
 	
@@ -21,7 +21,7 @@ class Tropo {
 		$this->ask = sprintf($ask);
 	}
 
-	public function Call($call, $params = array()) {
+	public function call($call, $params = array()) {
 		if(!is_object($call)) {
   	  $p = array('from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
   	  foreach ($p as $option) {
@@ -104,8 +104,11 @@ class Tropo {
 		array_push($this->tropo, array($name => $value));
 	}	
 	
+	public function __construct() {
+	}	
+
 	public function __toString() {
-		return str_replace(array("\\", "\"{", "}\""), array("", "{", "}"), json_encode($this));	
+		return $this->unescapeJSON(json_encode($this));	
 	}
 	
 }
@@ -125,6 +128,10 @@ abstract class BaseClass {
 	public function __set($attribute, $value) {
 		$this->$attribute= $value;
 	}	
+	
+	public function unescapeJSON($json) {
+	  return str_replace(array("\\", "\"{", "}\""), array("", "{", "}"), $json);
+	}
 }
 
 /**
@@ -193,8 +200,8 @@ class Ask extends BaseClass {
 		if(isset($this->_name)) { $this->name = $this->_name; }
 		if(isset($this->_requied)) { $this->requied = $this->_requied; }
 		if(isset($this->_say)) { $this->say = $this->_say; }
-		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
-		return json_encode($this);
+		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }	
+		return $this->unescapeJSON(json_encode($this));	
 	}
 }
 
@@ -226,7 +233,7 @@ class Call extends BaseClass {
 	 * @param array $headers
 	 * @param StartRecording $recording
 	 */
-	public function __construct($to, $from=NULL, $network=NULL, $channel=NULL, $answerOnMedia=NULL, $timeout=NULL, $headers=array(), StartRecording $recording=NULL) {
+	public function __construct($to, $from=NULL, $network=NULL, $channel=NULL, $answerOnMedia=NULL, $timeout=NULL, Array $headers=NULL, StartRecording $recording=NULL) {
 		$this->_to = $to;
 		$this->_from = $from;		
 		$this->_network = $network;		
@@ -250,7 +257,7 @@ class Call extends BaseClass {
 		if(isset($this->_answerOnMedia)) { $this->answerOnMedia = $this->_answerOnMedia; }
 		if(count($this->_headers)) { $this->headers = $this->_headers; }		
 		if(isset($this->_recording)) { $this->recording = $this->_recording; }		
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}	
 }
 
@@ -285,7 +292,7 @@ class Choices extends BaseClass {
 		$this->value = $this->_value;
 		if(isset($this->_mode)) { $this->mode = $this->_mode; }
 		if(isset($this->_termChar)) { $this->termChar = $this->_termChar; }	
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}
 }
 
@@ -340,7 +347,7 @@ class Conference extends BaseClass {
 		if(isset($this->_playTones)) { $this->playTones = $this->_playTones; }
 		if(isset($this->_required)) { $this->required = $this->_required; }
 		if(isset($this->_terminator)) { $this->terminator = $this->_terminator; }		
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}	
 }
 
@@ -381,7 +388,7 @@ class On extends BaseClass {
 		if(isset($this->_event)) { $this->event = $this->_event; }
 		if(isset($this->_next)) { $this->next = $this->_next; }
 		if(isset($this->_say)) { $this->say = $this->_say; }		
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}
 }
 
@@ -454,7 +461,7 @@ class Record extends BaseClass {
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
 		if(isset($this->_username)) { $this->username = $this->_username; }		
 		if(isset($this->_transcription)) { $this->transcription = $this->_transcription; }		
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}
 }
 
@@ -485,7 +492,7 @@ class Redirect extends BaseClass {
 	public function __toString() {
 		$this->to = $this->_to;
 		if(isset($this->_from)) { $this->from = $this->_from; }		
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}
 }
 
@@ -633,7 +640,7 @@ class Say extends BaseClass {
 		if(isset($this->_as)) { $this->as = $this->_as; }
 		if(isset($this->_event)) { $this->event = $this->_event; }
 		if(isset($this->_format)) { $this->format = $this->_format; }		
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}
 }
 
@@ -747,7 +754,7 @@ class StartRecording extends BaseClass {
 		if(isset($this->_password)) { $this->password = $this->_password; }
 		if(isset($this->_url)) { $this->url = $this->_url; }
 		if(isset($this->_username)) { $this->username = $this->_username; }		
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}	
 }
 
@@ -780,7 +787,7 @@ class Transcription extends BaseClass {
 		if(isset($this->_id)) { $this->id = $this->_id; }
 		if(isset($this->_url)) { $this->url = $this->_url; }
 		if(isset($this->_emailFormat)) { $this->emailFormat = $this->_emailFormat; }
-		return json_encode($this);
+		return $this->unescapeJSON(json_encode($this));	
 	}
 }
 
@@ -832,7 +839,7 @@ class Transfer extends BaseClass {
 		if(isset($this->_on)) { $this->on = $this->_on; }
 		if(isset($this->_ringRepeat)) { $this->ringRepeat = $this->_ringRepeat; }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
-		return json_encode($this);		
+		return $this->unescapeJSON(json_encode($this));	
 	}	
 }
 
@@ -873,7 +880,7 @@ class EndpointObject extends BaseClass {
 		if(isset($this->_channel)) { $this->channel = $this->_channel; }
 		if(isset($this->_name)) { $this->name = $this->_name; }
 		if(isset($this->_network)) { $this->network = $this->_network; }		
-		return json_encode($this);		
+		return $this->unescapeJSON(json_encode($this));	
 	}
 }
 
