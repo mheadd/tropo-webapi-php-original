@@ -15,13 +15,25 @@
  */
 class Tropo {
 	
-	const TROPO_QUERYSTRING = "tropo-engine=json";
-	
 	public $tropo = array();
 	
 	public function Ask(Ask $ask) {
 		$this->ask = sprintf($ask);
 	}
+
+	public function Call($call, $params = array()) {
+		if(!is_object($call)) {
+  	  $p = array('from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
+  	  foreach ($p as $option) {
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+  	  }
+			$call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording);
+		}
+		$this->call = sprintf($call);
+	}
+
 
 	public function Conference($conference) {
 		if(!is_object($conference)) {
@@ -39,7 +51,10 @@ class Tropo {
 		$this->on = sprintf($on);
 	}
 	
-	public function Record(Record $record) {
+	public function Record($record) {
+		if(!is_object($record)) {
+		  $record = new Record($record);
+		}
 		$this->record = sprintf($record);
 	}
 	
@@ -85,17 +100,12 @@ class Tropo {
 		echo $this;
 	}
 	
-	private function __set($name, $value) {
+	public function __set($name, $value) {
 		array_push($this->tropo, array($name => $value));
 	}	
 	
-	private function __toString() {
-		if(!strstr($_SERVER['REQUEST_URI'], self::TROPO_QUERYSTRING)) {
-			die('*** Start URL for script must include querystring ?'.self::TROPO_QUERYSTRING.' ***');
-		} 
-		else {
-			return str_replace(array("\\", "\"{", "}\""), array("", "{", "}"), json_encode($this));	
-		}		
+	public function __toString() {
+		return str_replace(array("\\", "\"{", "}\""), array("", "{", "}"), json_encode($this));	
 	}
 	
 }
@@ -112,7 +122,7 @@ abstract class BaseClass {
 	abstract public function __toString();
 	
 	// Allows derived classes to set undeclared properties.
-	private function __set($attribute, $value) {
+	public function __set($attribute, $value) {
 		$this->$attribute= $value;
 	}	
 }
@@ -186,6 +196,62 @@ class Ask extends BaseClass {
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
 		return json_encode($this);
 	}
+}
+
+/**
+ * This object allows Tropo to make an outbound call. The call can be over voice or one
+ * of the text channels. 
+ *
+ */
+class Call extends BaseClass {
+	
+	private $_to;
+	private $_from;
+	private $_network;
+	private $_channel;
+	private $_answerOnMedia;
+	private $_timeout;
+	private $_headers; 
+	private $_recording;
+	
+	/**
+	 * Class constructor
+	 *
+	 * @param string $to
+	 * @param string $from
+	 * @param string $network
+	 * @param string $channel
+	 * @param boolean $answerOnMedia
+	 * @param int $timeout
+	 * @param array $headers
+	 * @param StartRecording $recording
+	 */
+	public function __construct($to, $from=NULL, $network=NULL, $channel=NULL, $answerOnMedia=NULL, $timeout=NULL, $headers=array(), StartRecording $recording=NULL) {
+		$this->_to = $to;
+		$this->_from = $from;		
+		$this->_network = $network;		
+		$this->_channel = $channel;		
+		$this->_answerOnMedia = $answerOnMedia;		
+		$this->_timeout = $timeout;
+		$this->_headers = $headers;
+		$this->_recording = isset($recording) ? sprintf($recording) : null ;
+	}
+	
+	/**
+	 * Renders object in JSON format.
+	 *
+	 */
+	public function __toString() {
+		$this->to = $this->_to;
+		if(isset($this->_from)) { $this->from = $this->_from; }
+		if(isset($this->_network)) { $this->network = $this->_network; }
+		if(isset($this->_channel)) { $this->channel = $this->_channel; }
+		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
+		if(isset($this->_answerOnMedia)) { $this->answerOnMedia = $this->_answerOnMedia; }
+		if(count($this->_headers)) { $this->headers = $this->_headers; }		
+		if(isset($this->_recording)) { $this->recording = $this->_recording; }		
+		return json_encode($this);
+	}	
 }
 
 /**
@@ -337,6 +403,7 @@ class Record extends BaseClass {
 	private $_say;
 	private $_timeout;
 	private $_username;
+	private $_transcription;
 	
 	/**
 	 * Class constructor
@@ -353,8 +420,9 @@ class Record extends BaseClass {
 	 * @param Say $say
 	 * @param int $timeout
 	 * @param string $username
+	 * @param Transcription $transcription
 	 */
-	public function __construct($attempts, $bargein, $beep, Choices $choices, $format, $maxSilence, $method, $password, $required, Say $say, $timeout, $username) {
+	public function __construct($attempts, $bargein, $beep, Choices $choices, $format, $maxSilence, $method, $password, $required, Say $say, $timeout, $username, Transcription $transcription = NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_beep = $beep;
@@ -366,6 +434,7 @@ class Record extends BaseClass {
 		$this->_say = isset($say) ? sprintf($say) : null;
 		$this->_timeout = $timeout;
 		$this->_username = $username;
+		$this->_transcription = isset($transcription) ? sprintf($transcription) : null;
 	}
 	
 	/**
@@ -384,6 +453,7 @@ class Record extends BaseClass {
 		if(isset($this->_say)) { $this->say = $this->_say; }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
 		if(isset($this->_username)) { $this->username = $this->_username; }		
+		if(isset($this->_transcription)) { $this->transcription = $this->_transcription; }		
 		return json_encode($this);
 	}
 }
@@ -671,7 +741,7 @@ class StartRecording extends BaseClass {
 	 *
 	 */
 	public function __toString() {		
-		$this->name = $this->_name;
+		//$this->name = $this->_name;
 		if(isset($this->_format)) { $this->format = $this->_format; }
 		if(isset($this->_method)) { $this->method = $this->_method; }
 		if(isset($this->_password)) { $this->password = $this->_password; }
@@ -682,6 +752,38 @@ class StartRecording extends BaseClass {
 }
 
 class StopRecording extends EmptyBaseClass { }
+
+class Transcription extends BaseClass {
+	
+	private $_url;
+	private $_id;
+	private $_emailFormat;
+	
+	/**
+	 * Class constructor
+	 *
+	 * @param string $url
+	 * @param string $id
+	 * @param string $emailFormat
+	 */
+	public function __construct($url, $id=NULL, $emailFormat=NULL) {
+		$this->_url = $url;
+		$this->_id = $id;
+		$this->_emailFormat = $emailFormat;
+	}
+	
+	/**
+	 * Renders object in JSON format.
+	 *
+	 */
+	public function __toString() {
+		if(isset($this->_id)) { $this->id = $this->_id; }
+		if(isset($this->_url)) { $this->url = $this->_url; }
+		if(isset($this->_emailFormat)) { $this->emailFormat = $this->_emailFormat; }
+		return json_encode($this);
+	}
+}
+
 
 /**
  * Transfers an already answered call to another destination / phone number. 
