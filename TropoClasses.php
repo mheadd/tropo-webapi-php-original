@@ -528,7 +528,10 @@ class Result {
 	 *
 	 * @param string $json
 	 */
-	public function __construct($json) {
+	public function __construct($json=NULL) {
+	  if (empty($json)) {
+	    $json = file_get_contents("php://input");
+	  }
 		$result = json_decode($json);
 		$this->_sessionId = $result->result->sessionId;
 		$this->_state = $result->result->state;
@@ -666,7 +669,10 @@ class Session {
 	 *
 	 * @param string $json
 	 */
-	public function __construct($json) {
+	public function __construct($json=NULL) {
+	  if (empty($json)) {
+	    $json = file_get_contents("php://input");
+	  }
 		$session = json_decode($json);
 		$this->_id = $session->session->id;
 		$this->_accountID = $session->session->accountID;
