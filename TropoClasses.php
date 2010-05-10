@@ -2,140 +2,55 @@
 
 /**
  * 
- * Copyright 2010 Mark J. Headd
- * http://www.voiceingov.org
- * 
- * A set of PHP classes for working with the Voxeo Tropo WebAPI
- *
+ * @copyright 2010 Mark J. Headd (http://www.voiceingov.org)
+ * @package TropoPHP: A set of PHP classes for working with the Voxeo Tropo WebAPI.
+ * @author Mark Headd
+ * @author Adam Kalsey
  */
 
 /**
- * The main Tropo class
- *
- */
-class Tropo extends BaseClass {
-	
-	public $tropo = array();
-	
-	public function Ask(Ask $ask) {
-		$this->ask = sprintf($ask);
-	}
-
-	public function call($call, $params = array()) {
-		if(!is_object($call)) {
-  	  $p = array('from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
-  	  foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
-  	      $$option = $params[$option];
-  	    }
-  	  }
-			$call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording);
-		}
-		$this->call = sprintf($call);
-	}
-
-
-	public function Conference($conference) {
-		if(!is_object($conference)) {
-			$conference = new Conference($conference);
-		}
-		$this->conference = sprintf($conference);
-	}
-	
-	public function Hangup() {
-		$hangup = new Hangup();
-		$this->hangup = sprintf($hangup);
-	}
-	
-	public function On(On $on) {
-		$this->on = sprintf($on);
-	}
-	
-	public function Record($record) {
-		if(!is_object($record)) {
-		  $record = new Record($record);
-		}
-		$this->record = sprintf($record);
-	}
-	
-	public function Redirect($redirect) {
-		if(!is_object($redirect)) {
-			$to = new EndPointObject($redirect);
-			$redirect = new Redirect($to);
-		}
-		$this->redirect = sprintf($redirect);
-	}
-	
-	public function Reject() {
-		$reject = new Reject();
-		$this->reject = sprintf($reject);
-	}
-	
-	public function Say($say) {
-		if(!is_object($say)) {
-			$say = new Say($say);
-		} 
-		$this->say = array(sprintf($say));	
-	}
-	
-	public function StartRecording(StartRecording $startRecording) {
-		$this->startRecording = sprintf($startRecording);
-	}
-	
-	public function StopRecording() {
-		$stopRecording = new stopRecording();
-		$this->stopRecording = sprintf($stopRecording);
-	}
-	
-	public function Transfer($transfer) {
-		if(!is_object($transfer)) {
-			$to = new EndPointObject($transfer);
-			$transfer = new Transfer($to);
-		}
-		$this->transfer = sprintf($transfer);
-	}
-	
-	public function RenderJSON() {
-		header('Content-type: application/json');
-		echo $this;
-	}
-	
-	public function __set($name, $value) {
-		array_push($this->tropo, array($name => $value));
-	}	
-	
-	public function __construct() {
-	}	
-
-	public function __toString() {
-		return $this->unescapeJSON(json_encode($this));	
-	}
-	
-}
-
-/**
- * Base classes for different Tropo actions.
- *
+ * Base classes for Tropo class and indvidual Tropo action classes.
+ * Derived classes must implement both a constructor and toString function.
+ * @abstract BaseClass
  */
 
 abstract class BaseClass {
 	
-	// Derived classes must implement both a constructor and toString function.
+	/**
+	 * Class constructor
+	 * @abstract __construct()
+	 */
 	abstract public function __construct();
+	
+	/**
+	 * toString Function
+	 * @abstract __toString()
+	 */
 	abstract public function __toString();
 	
-	// Allows derived classes to set undeclared properties.
+	/**
+	 * Allows derived classes to set Undeclared properties.
+	 *
+	 * @param mixed $attribute
+	 * @param mixed $value
+	 */
 	public function __set($attribute, $value) {
 		$this->$attribute= $value;
-	}	
+	}
 	
+	/**
+	 * Removes escape characters from a JSON string.
+	 *
+	 * @param string $json
+	 * @return string
+	 */
 	public function unescapeJSON($json) {
 	  return str_replace(array("\\", "\"{", "}\""), array("", "{", "}"), $json);
 	}
 }
 
 /**
- * Base classe for empty actions.
+ * Base class for empty actions.
  *
  */
 class EmptyBaseClass {	
@@ -146,7 +61,162 @@ class EmptyBaseClass {
 }
 
 /**
- * Action classes. Each object represents a Tropo action.
+ * The main Tropo class
+ *
+ */
+class Tropo extends BaseClass {
+	
+	public $tropo;
+	
+	public function __construct() {
+		$this->tropo = array();
+	}
+	
+	public function ask($ask, Array $params=NULL) {
+		if(!is_object($ask)) {
+			$say = new Say($ask);
+			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
+			$p = array('attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
+			foreach ($p as $option) {
+		  	    if (array_key_exists($option, $params)) {
+		  	      $$option = $params[$option];
+		  	    }
+	  	  	}
+	  	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
+		}
+		$this->ask = sprintf($ask);
+	}
+
+	public function call($call, Array $params=NULL) {
+	if(!is_object($call)) {
+  	  $p = array('call', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
+  	  foreach ($p as $option) {
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+  	  }
+		$call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording);
+	}
+		$this->call = sprintf($call);
+	}
+	
+	public function conference($conference, Array $params=NULL) {
+		if(!is_object($conference)) {
+			$p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator');
+		  	foreach ($p as $option) {
+		  	    if (array_key_exists($option, $params)) {
+		  	      $$option = $params[$option];
+		  	    }
+	  	  	}
+	  	  	$conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator);
+		}
+		$this->conference = sprintf($conference);
+	}
+	
+	public function hangup() {
+		$hangup = new Hangup();
+		$this->hangup = sprintf($hangup);
+	}
+	
+	public function on(Array $params) {		
+		$on = new On($params["event"], $params["next"], $params["null"]);
+		$this->on = sprintf($on);
+	}
+	
+	public function record($record, Array $params=NULL) {
+		if(!is_object($record)) {
+			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
+			$say = $params["say"];
+			$transcription =$params["transcription"];
+			$p = array('attempts', 'bargein', 'beep', 'format', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username');
+			foreach ($p as $option) {
+		  	    if (array_key_exists($option, $params)) {
+		  	      $$option = $params[$option];
+		  	    }
+	  	  	}
+	  	  	$record = new Record($attempts, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username);
+		}
+		$this->record = sprintf($record);		
+	}
+	
+	public function redirect($redirect, Array $params=NULL) {
+		if(!is_object($redirect)) {
+			$to = isset($params["to"]) ? $params["to"]: null;
+			$from = isset($params["from"]) ? $params["to"] : null;
+			$redirect = new Redirect($to, $from);
+		}
+		$this->redirect = sprintf($redirect);
+	}
+	
+	public function reject() {
+		$reject = new Reject();
+		$this->reject = sprintf($reject);
+	}
+	
+	public function say($say, Array $params=NULL) {
+		if(!is_object($say)) {
+			$p = array('value', 'as', 'format', 'event');
+			foreach ($p as $option) {
+		  	    if (array_key_exists($option, $params)) {
+		  	      $$option = $params[$option];
+		  	    }
+	  	  	}
+	  	  	$say = new Say($value, $as, $event, $format);
+		}
+		$this->say = array(sprintf($say));	
+	}
+	
+	public function startRecording($startRecording, Array $params=NULL) {
+		if(!is_object($startRecording)) {
+			$p = array('format', 'method', 'password', 'url', 'username');
+			foreach ($p as $option) {
+		  	    if (array_key_exists($option, $params)) {
+		  	      $$option = $params[$option];
+		  	    }
+	  	  	}
+	  	  	$startRecording = new StartRecording($format, $method, $password, $url, $username);
+		}		
+		$this->startRecording = sprintf($startRecording);
+	}
+	
+	public function stopRecording() {
+		$stopRecording = new stopRecording();
+		$this->stopRecording = sprintf($stopRecording);
+	}
+	
+	public function transfer($transfer, Array $params=NULL) {
+		if(!is_object($transfer)) {
+			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
+			$to = isset($params["to"]) ? $params["to"]: null;
+			$from = isset($params["from"]) ? $params["to"] : null;
+			$on = isset($params["on"]) ? new On($params["on"]) : null;
+			$p = array('answerOnMedia', 'ringRepeat', 'timeout');
+			foreach ($p as $option) {
+		  	    if (array_key_exists($option, $params)) {
+		  	      $$option = $params[$option];
+		  	    }
+	  	  	}
+	  	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $on, $ringRepeat, $timeout);
+		}
+		$this->transfer = sprintf($transfer);
+	}
+	
+	public function renderJSON() {
+		header('Content-type: application/json');
+		echo $this;
+	}
+	
+	public function __set($name, $value) {
+		array_push($this->tropo, array($name => $value));
+	}	
+	
+	public function __toString() {
+		return $this->unescapeJSON(json_encode($this));	
+	}	
+}
+
+/**
+ * Action classes. Each object represents a specific Tropo action.
  *
  */
 
@@ -200,8 +270,8 @@ class Ask extends BaseClass {
 		if(isset($this->_name)) { $this->name = $this->_name; }
 		if(isset($this->_requied)) { $this->requied = $this->_requied; }
 		if(isset($this->_say)) { $this->say = $this->_say; }
-		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }	
-		return $this->unescapeJSON(json_encode($this));	
+		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
+		return $this->unescapeJSON(json_encode($this));
 	}
 }
 
@@ -404,13 +474,14 @@ class Record extends BaseClass {
 	private $_choices;
 	private $_format;
 	private $_maxSilence;
+	private $_maxTime;
 	private $_method;
 	private $_password;
 	private $_required;
 	private $_say;
 	private $_timeout;
-	private $_username;
 	private $_transcription;
+	private $_username;	
 	
 	/**
 	 * Class constructor
@@ -427,21 +498,21 @@ class Record extends BaseClass {
 	 * @param Say $say
 	 * @param int $timeout
 	 * @param string $username
-	 * @param Transcription $transcription
 	 */
-	public function __construct($attempts, $bargein, $beep, Choices $choices, $format, $maxSilence, $method, $password, $required, Say $say, $timeout, $username, Transcription $transcription = NULL) {
+	public function __construct($attempts=NULL, $bargein=NULL, $beep=NULL, Choices $choices=NULL, $format=NULL, $maxSilence=NULL, $maxTime=NULL, $method=NULL, $password=NULL, $required=NULL, $say=NULL, $timeout=NULL, $transcription=NULL, $username=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_beep = $beep;
 		$this->_choices = isset($choices) ? sprintf($choices) : null;
 		$this->_format = $format;
 		$this->_maxSilence = $maxSilence;
+		$this->_maxTime = $maxTime;
 		$this->_method = $method;
 		$this->_password = $password;
 		$this->_say = isset($say) ? sprintf($say) : null;
 		$this->_timeout = $timeout;
-		$this->_username = $username;
 		$this->_transcription = isset($transcription) ? sprintf($transcription) : null;
+		$this->_username = $username;		
 	}
 	
 	/**
@@ -455,12 +526,13 @@ class Record extends BaseClass {
 		if(isset($this->_choices)) { $this->choices = $this->_choices; }
 		if(isset($this->_format)) { $this->format = $this->_format; }
 		if(isset($this->_maxSilence)) { $this->maxSilence = $this->_maxSilence; }
+		if(isset($this->_maxTime)) { $this->maxTime = $this->_maxTime; }
 		if(isset($this->_method)) { $this->method = $this->_method; }
 		if(isset($this->_password)) { $this->password = $this->_password; }
 		if(isset($this->_say)) { $this->say = $this->_say; }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
+		if(isset($this->_transcription)) { $this->transcription = $this->_transcription; }	
 		if(isset($this->_username)) { $this->username = $this->_username; }		
-		if(isset($this->_transcription)) { $this->transcription = $this->_transcription; }		
 		return $this->unescapeJSON(json_encode($this));	
 	}
 }
@@ -477,10 +549,10 @@ class Redirect extends BaseClass {
 	/**
 	 * Class constructor
 	 *
-	 * @param EndpointObject $to
-	 * @param EndpointObject $from
+	 * @param Endpoint $to
+	 * @param Endpoint $from
 	 */
-	public function __construct($to, EndpointObject $from=NULL) {
+	public function __construct($to=NULL, $from=NULL) {
 		$this->_to = sprintf($to);
 		$this->_from = isset($from) ? sprintf($from) : null;
 	}
@@ -529,9 +601,9 @@ class Result {
 	 * @param string $json
 	 */
 	public function __construct($json=NULL) {
-	  if (empty($json)) {
-	    $json = file_get_contents("php://input");
-	  }
+		if(empty($json)) {
+	 		$json = file_get_contents("php://input");
+	 	}
 		$result = json_decode($json);
 		$this->_sessionId = $result->result->sessionId;
 		$this->_state = $result->result->state;
@@ -670,9 +742,9 @@ class Session {
 	 * @param string $json
 	 */
 	public function __construct($json=NULL) {
-	  if (empty($json)) {
-	    $json = file_get_contents("php://input");
-	  }
+		if(empty($json)) {
+	 		$json = file_get_contents("php://input");
+	 	}
 		$session = json_decode($json);
 		$this->_id = $session->session->id;
 		$this->_accountID = $session->session->accountID;
@@ -740,8 +812,7 @@ class StartRecording extends BaseClass {
 	 * @param string $url
 	 * @param string $username
 	 */
-	public function __construct($name, $format=NULL, $method=NULL, $password=NULL, $url=NULL, $username=NULL) {		
-		$this->_name = $name;
+	public function __construct($format=NULL, $method=NULL, $password=NULL, $url=NULL, $username=NULL) {		
 		$this->_format = $format;
 		$this->_method = $method;
 		$this->_password = $password;
@@ -754,7 +825,6 @@ class StartRecording extends BaseClass {
 	 *
 	 */
 	public function __toString() {		
-		//$this->name = $this->_name;
 		if(isset($this->_format)) { $this->format = $this->_format; }
 		if(isset($this->_method)) { $this->method = $this->_method; }
 		if(isset($this->_password)) { $this->password = $this->_password; }
@@ -797,7 +867,6 @@ class Transcription extends BaseClass {
 	}
 }
 
-
 /**
  * Transfers an already answered call to another destination / phone number. 
  *
@@ -815,15 +884,15 @@ class Transfer extends BaseClass {
 	/**
 	 * Class constructor
 	 *
-	 * @param EndpointObject $to
+	 * @param Endpoint $to
 	 * @param boolean $answerOnMedia
 	 * @param Choices $choices
-	 * @param EndpointObject $from
+	 * @param Endpoint $from
 	 * @param On $on
 	 * @param int $ringRepeat
 	 * @param int $timeout
 	 */
-	public function __construct(EndpointObject $to, $answerOnMedia=NULL, Choices $choices=NULL, EndpointObject $from=NULL, On $on=NULL, $ringRepeat=NULL, $timeout=NULL) {
+	public function __construct(Endpoint $to, $answerOnMedia=NULL, Choices $choices=NULL, Endpoint $from=NULL, On $on=NULL, $ringRepeat=NULL, $timeout=NULL) {
 		$this->_to = sprintf($to);	
 		$this->_answerOnMedia = $answerOnMedia;
 		$this->_choices = isset($choices) ? sprintf($choices) : null; 
@@ -845,7 +914,7 @@ class Transfer extends BaseClass {
 		if(isset($this->_on)) { $this->on = $this->_on; }
 		if(isset($this->_ringRepeat)) { $this->ringRepeat = $this->_ringRepeat; }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
-		return $this->unescapeJSON(json_encode($this));	
+		return $this->unescapeJSON(json_encode($this));			
 	}	
 }
 
@@ -853,7 +922,7 @@ class Transfer extends BaseClass {
  * Defnies an endoint for transfer and redirects.
  *
  */
-class EndpointObject extends BaseClass {
+class Endpoint extends BaseClass {
 	
 	private $_id;
 	private $_channel;
@@ -886,7 +955,7 @@ class EndpointObject extends BaseClass {
 		if(isset($this->_channel)) { $this->channel = $this->_channel; }
 		if(isset($this->_name)) { $this->name = $this->_name; }
 		if(isset($this->_network)) { $this->network = $this->_network; }		
-		return $this->unescapeJSON(json_encode($this));	
+		return $this->unescapeJSON(json_encode($this));			
 	}
 }
 
@@ -954,11 +1023,17 @@ class Network {
 	public static $msn = "MSN";
 	public static $sms = "SMS";
 	public static $yahoo = "YAHOO";	
+	public static $twitter = "TWITTER";
 }
 
 class Channel {
 	public static $voice = "VOICE";
 	public static $text = "TEXT";
+}
+
+class AudioFormat {
+	public static $wav = "audio/wav";
+	public static $mp3 = "audio/mp3";
 }
 
 ?>
