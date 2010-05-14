@@ -67,22 +67,26 @@ class EmptyBaseClass {
 class Tropo extends BaseClass {
 	
 	public $tropo;
+	public $voice;
 	
 	public function __construct() {
 		$this->tropo = array();
 	}
-	
+		
 	public function ask($ask, Array $params=NULL) {
 		if(!is_object($ask)) {
-			$say = new Say($ask);
-			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
-			$p = array('attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
+		  if (isset($this->voice)) {
+		    $voice = $this->voice;
+		  }
+		  $p = array('as', 'format', 'event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
 			foreach ($p as $option) {
-		  	    if (array_key_exists($option, $params)) {
-		  	      $$option = $params[$option];
-		  	    }
-	  	  	}
-	  	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+	  	}
+	  	$say = new Say($ask, $as, $event, $format, $voice);
+			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
+	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
 		}
 		$this->ask = sprintf($ask);
 	}
@@ -155,13 +159,17 @@ class Tropo extends BaseClass {
 	
 	public function say($say, Array $params=NULL) {
 		if(!is_object($say)) {
-			$p = array('value', 'as', 'format', 'event');
+		  if (isset($this->voice)) {
+		    $voice = $this->voice;
+		  }
+			$p = array('value', 'as', 'format', 'event','voice');
+			$value = $say;
 			foreach ($p as $option) {
-		  	    if (array_key_exists($option, $params)) {
-		  	      $$option = $params[$option];
-		  	    }
-	  	  	}
-	  	  	$say = new Say($value, $as, $event, $format);
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+	  	}
+	  	$say = new Say($value, $as, $event, $format, $voice);
 		}
 		$this->say = array(sprintf($say));	
 	}
@@ -231,7 +239,7 @@ class Ask extends BaseClass {
 	private $_choices;
 	private $_minConfidence;
 	private $_name;
-	private $_requied;
+	private $_required;
 	private $_say;
 	private $_timeout;
 	
@@ -243,17 +251,17 @@ class Ask extends BaseClass {
 	 * @param Choices $choices
 	 * @param float $minConfidence
 	 * @param string $name
-	 * @param boolean $requied
+	 * @param boolean $required
 	 * @param Say $say
 	 * @param int $timeout
 	 */
-	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $requied=NULL, Say $say=NULL, $timeout=NULL) {
+	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, Say $say=NULL, $timeout=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_choices = isset($choices) ? sprintf($choices) : null ;
 		$this->_minConfidence = $minConfidence;
 		$this->_name = $name;
-		$this->_requied = $requied;
+		$this->_required = $required;
 		$this->_say = isset($say) ? sprintf($say) : null;
 		$this->_timeout = $timeout;		
 	}
@@ -268,7 +276,7 @@ class Ask extends BaseClass {
 		if(isset($this->_choices)) { $this->choices = $this->_choices; }
 		if(isset($this->_minConfidence)) { $this->minConfidence = $this->_minConfidence; }
 		if(isset($this->_name)) { $this->name = $this->_name; }
-		if(isset($this->_requied)) { $this->requied = $this->_requied; }
+		if(isset($this->_required)) { $this->required = $this->_required; }
 		if(isset($this->_say)) { $this->say = $this->_say; }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
 		return $this->unescapeJSON(json_encode($this));
@@ -592,6 +600,7 @@ class Result {
     private $_disposition;
     private $_confidence;
     private $_interpretation;
+    private $_concept;
     private $_utterance;
     private $_value;
 	
@@ -619,6 +628,7 @@ class Result {
 		$this->_interpretation = $result->result->actions->interpretation;
 		$this->_utterance = $result->result->actions->utterance;
 		$this->_value = $result->result->actions->value;
+		$this->_concept = $result->result->concept->value;
 		
 	}
 	
@@ -670,6 +680,10 @@ class Result {
 		return $this->_interpretation;
 	}
 	
+	function getConcept() {
+		return $this->_concept;
+	}
+	
 	function getUtterance() {
 		return $this->_utterance;
 	}
@@ -690,6 +704,7 @@ class Say extends BaseClass {
 	private $_as;
 	private $_event;
 	private $_format;
+	private $_voice;
 	
 	/**
 	 * Class constructor
@@ -697,13 +712,15 @@ class Say extends BaseClass {
 	 * @param string $value
 	 * @param SayAs $as
 	 * @param string $event
+	 * @param string $voice
 	 * @param Format $format
 	 */
-	public function __construct($value, $as=NULL, $event=NULL, $format=NULL) {
+	public function __construct($value, $as=NULL, $event=NULL, $format=NULL, $voice=NULL) {
 		$this->_value = $value;
 		$this->_as = $as;
 		$this->_event = $event;
 		$this->_format = $format;		
+		$this->_voice = $voice;		
 	}
 	
 	/**
@@ -715,6 +732,7 @@ class Say extends BaseClass {
 		if(isset($this->_as)) { $this->as = $this->_as; }
 		if(isset($this->_event)) { $this->event = $this->_event; }
 		if(isset($this->_format)) { $this->format = $this->_format; }		
+		if(isset($this->_voice)) { $this->voice = $this->_voice; }		
 		return $this->unescapeJSON(json_encode($this));	
 	}
 }
