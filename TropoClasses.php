@@ -68,7 +68,8 @@ class Tropo extends BaseClass {
 	
 	public $tropo;
 	public $voice;
-	
+	public $language;
+		
 	public function __construct() {
 		$this->tropo = array();
 	}
@@ -107,12 +108,12 @@ class Tropo extends BaseClass {
 	public function conference($conference, Array $params=NULL) {
 		if(!is_object($conference)) {
 			$p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator');
-		  	foreach ($p as $option) {
-		  	    if (array_key_exists($option, $params)) {
-		  	      $$option = $params[$option];
-		  	    }
-	  	  	}
-	  	  	$conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator);
+	  	foreach ($p as $option) {
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+	  	}
+	  	$conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator);
 		}
 		$this->conference = sprintf($conference);
 	}
@@ -120,6 +121,22 @@ class Tropo extends BaseClass {
 	public function hangup() {
 		$hangup = new Hangup();
 		$this->hangup = sprintf($hangup);
+	}
+	
+	public function message($message, Array $params=null) {
+	  if(!is_object($message)) {
+			$say = new Say($message);
+			$to = $params["to"];
+			$p = array('channel', 'network', 'from', 'voice', 'timeout', 'answerOnMedia','headers');
+			foreach ($p as $option) {
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+	  	}
+	  	$message = new Message($say, $to, $channel, $network, $from, $voice, $timeout, $answerOnMedia, $headers);
+		}
+		$this->message = sprintf($message);		
+		
 	}
 	
 	public function on(Array $params) {		
@@ -134,11 +151,11 @@ class Tropo extends BaseClass {
 			$transcription =$params["transcription"];
 			$p = array('attempts', 'bargein', 'beep', 'format', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username');
 			foreach ($p as $option) {
-		  	    if (array_key_exists($option, $params)) {
-		  	      $$option = $params[$option];
-		  	    }
-	  	  	}
-	  	  	$record = new Record($attempts, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username);
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+	  	}
+	  	$record = new Record($attempts, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username);
 		}
 		$this->record = sprintf($record);		
 	}
@@ -178,11 +195,11 @@ class Tropo extends BaseClass {
 		if(!is_object($startRecording)) {
 			$p = array('format', 'method', 'password', 'url', 'username');
 			foreach ($p as $option) {
-		  	    if (array_key_exists($option, $params)) {
-		  	      $$option = $params[$option];
-		  	    }
-	  	  	}
-	  	  	$startRecording = new StartRecording($format, $method, $password, $url, $username);
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+	  	}
+	  	$startRecording = new StartRecording($format, $method, $password, $url, $username);
 		}		
 		$this->startRecording = sprintf($startRecording);
 	}
@@ -200,11 +217,11 @@ class Tropo extends BaseClass {
 			$on = isset($params["on"]) ? new On($params["on"]) : null;
 			$p = array('answerOnMedia', 'ringRepeat', 'timeout');
 			foreach ($p as $option) {
-		  	    if (array_key_exists($option, $params)) {
-		  	      $$option = $params[$option];
-		  	    }
-	  	  	}
-	  	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $on, $ringRepeat, $timeout);
+  	    if (array_key_exists($option, $params)) {
+  	      $$option = $params[$option];
+  	    }
+	  	}
+	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $on, $ringRepeat, $timeout);
 		}
 		$this->transfer = sprintf($transfer);
 	}
@@ -219,6 +236,9 @@ class Tropo extends BaseClass {
 	}	
 	
 	public function __toString() {
+	  // remove voice and language so they don't appear in the json
+	  unset($this->voice);
+	  unset($this->language);
 		return $this->unescapeJSON(json_encode($this));	
 	}	
 }
@@ -434,6 +454,66 @@ class Conference extends BaseClass {
  *
  */
 class Hangup extends EmptyBaseClass { }
+
+/**
+ * This function instructs Tropo to send a message. 
+ *
+ */
+class Message extends BaseClass {
+	
+	private $_say;
+	private $_to;
+	private $_channel;
+	private $_network;
+	private $_from;
+	private $_voice;
+	private $_timeout;
+	private $_answerOnMedia;
+	private $_headers;
+	
+	/**
+	 * Class constructor
+	 *
+	 * @param Say $say
+	 * @param string $to
+	 * @param string $channel
+	 * @param string $network
+	 * @param string $from
+	 * @param string $voice
+	 * @param integer $timeout
+	 * @param boolean $answerOnMedia
+	 * @param array $headers
+	 */
+	public function __construct(Say $say, $to, $channel=null, $network=null, $from=null, $voice=null, $timeout=null, $answerOnMedia=null, Array $headers=null) {
+		$this->_say = isset($say) ? sprintf($say) : null ;
+		$this->_to = $to;
+		$this->_channel = $channel;
+		$this->_network = $network;
+		$this->_from = $from;
+		$this->_voice = $voice;
+		$this->_timeout = $timeout;
+		$this->_answerOnMedia = $answerOnMedia;
+		$this->_headers = $headers;
+	}
+	
+	/**
+	 * Renders object in JSON format.
+	 *
+	 */
+	public function __toString() {
+		$this->say = $this->_say;
+		$this->to = $this->_to;
+		if(isset($this->_channel)) { $this->channel = $this->_channel; }
+		if(isset($this->_network)) { $this->network = $this->_network; }
+		if(isset($this->_from)) { $this->from = $this->_from; }
+		if(isset($this->_voice)) { $this->voice = $this->_voice; }
+		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
+		if(isset($this->_answerOnMedia)) { $this->answerOnMedia = $this->_answerOnMedia; }	
+		if(count($this->_headers)) { $this->headers = $this->_headers; }			
+		return $this->unescapeJSON(json_encode($this));	
+	}
+}
+
 
 /**
  * Adds an event callback so that your application may be notified when a particular event occurs
@@ -753,6 +833,7 @@ class Session {
 	private $_to;
 	private $_from;
 	private $_headers;
+	private $_parameters;
 	
 	/**
 	 * Class constructor
@@ -772,6 +853,7 @@ class Session {
 		$this->_to = array($session->session->to->id, $session->session->to->channel, $session->session->to->name, $session->session->to->network);
 		$this->_from = array($session->session->from->id, $session->session->from->channel, $session->session->from->name, $session->session->from->network);
 		$this->_headers = $session->session->headers;			
+		$this->_parameters = $session->session->parameters;			
 	}
 	
 	public function getId() {
@@ -804,6 +886,41 @@ class Session {
 	public function getHeaders() {
 		return $this->_headers;
 	}
+	
+	/**
+	 * Returns the query string parameters for the session api
+	 *
+	 * If an argument is provided, a string containing the value of a
+	 * query string variable matching that string is returned or null 
+	 * if there is no match. If no argument is argument is provided, 
+	 * an array is returned with all query string variables or an empty
+	 * array if there are no query string variables.
+	 * 
+	 * @param string $name A specific parameter to return
+	 * @return string|array $param 
+	 */
+	public function getParameters($name = null) {
+	  if (isset($name)) {
+  	  if (!is_array($this->_parameters)) {
+  	    // We've asked for a specific param, not there's no params set
+  	    // return a null.
+  	    return null;
+  	  }
+	    if (isset($this->_parameters[$name])) {
+	      return $this->_parameters[$name];
+	    } else {
+	      return null;
+	    }
+	  } else {
+  	  // If the parameters field doesn't exist or isn't an array
+  	  // then return an empty array()
+  	  if (!is_array($this->_parameters)) {
+  	    return array();
+  	  }
+  	  return $this->_parameters;	    
+	  }
+	}
+
 }
 
 /**
