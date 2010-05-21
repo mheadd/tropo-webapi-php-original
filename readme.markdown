@@ -7,12 +7,12 @@ Usage
 =====
 
 <?php    
-require 'TropoPHP.php';
+require 'TropoClasses.php';
 
 $tropo = new Tropo();    
-// Use Tropo's text to speech to say a sentance.    
+// Use Tropo's text to speech to say a phrase.    
 $tropo->Say('Yes, Tropo is this easy.');    
 
-// Render the JSON back to Tropo    
+// Render the JSON back to Tropo.
 $tropo->RenderJSON();    
 ?>    
