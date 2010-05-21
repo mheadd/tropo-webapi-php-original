@@ -1,16 +1,18 @@
 <?php
-
 /**
+ * This file contains PHP classes that can be used to interact with the Tropo WebAPI/
+ * @see https://www.tropo.com/docs/webapi/
  * 
  * @copyright 2010 Mark J. Headd (http://www.voiceingov.org)
- * @package TropoPHP: A set of PHP classes for working with the Voxeo Tropo WebAPI.
+ * @package TropoPHP
  * @author Mark Headd
  * @author Adam Kalsey
  */
 
 /**
- * Base classes for Tropo class and indvidual Tropo action classes.
- * Derived classes must implement both a constructor and toString function.
+ * Base class for Tropo class and indvidual Tropo action classes.
+ * Derived classes must implement both a constructor and __toString() function.
+ * @package TropoPHP
  * @abstract BaseClass
  */
 
@@ -50,7 +52,8 @@ abstract class BaseClass {
 }
 
 /**
- * Base class for empty actions.
+ * Base class for empty actions. 
+ * @package TropoPHP
  *
  */
 class EmptyBaseClass {	
@@ -61,37 +64,91 @@ class EmptyBaseClass {
 }
 
 /**
- * The main Tropo class
+ * The main Tropo WebAPI class.
+ * The methods on this class can be used to invoke specifc Tropo actions.
+ * @package TropoPHP
+ * @see https://www.tropo.com/docs/webapi/tropo.htm
  *
  */
 class Tropo extends BaseClass {
 	
+	/**
+	 * The container for JSON actions.
+	 *
+	 * @var array
+	 */
 	public $tropo;
-	public $voice;
-	public $language;
-		
+	
+	/**
+	 * The TTS voice to use when rendering content.
+	 *
+	 * @var string
+	 */
+	private $_voice;
+	
+	/**
+	 * The language to use when rendering content.
+	 *
+	 * @var string
+	 */
+	private $_language;
+	
+	/**
+	 * Class constructor for the Tropo class.
+	 *
+	 */
 	public function __construct() {
 		$this->tropo = array();
 	}
+	
+	/**
+	 * Method to set the value of the voice property.
+	 *
+	 * @param string $voice
+	 */
+	public function setVoice($voice) {
+		$this->_voice = $voice;
+	}
+	
+	/**
+	 * Method to set the value of the language property.
+	 *
+	 * @param string $language
+	 */
+	public function setLanguage($language) {
+		$this->_language = $language;
+	}
 		
+	/**
+	 * Sends a prompt to the user and optionally waits for a response.
+	 *
+	 * @param string|Ask $ask
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/ask.htm
+	 */
 	public function ask($ask, Array $params=NULL) {
 		if(!is_object($ask)) {
-		  if (isset($this->voice)) {
-		    $voice = $this->voice;
-		  }
-		  $p = array('as', 'format', 'event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
+			$voice = isset($this->_voice) ? $this->_voice : null;
+		  	$p = array('as', 'format', 'event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
 			foreach ($p as $option) {
-  	    if (is_array($params) && array_key_exists($option, $params)) {
-  	      $$option = $params[$option];
-  	    }
-	  	}
-	  	$say = new Say($ask, $as, $event, $format, $voice);
+		  	    if (is_array($params) && array_key_exists($option, $params)) {
+		  	    	$$option = $params[$option];
+		  	    }
+	  		}
+		  	$say = new Say($ask, $as, $event, $format, $voice);
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
-	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
+		  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
 		}
 		$this->ask = sprintf($ask);
 	}
 
+	/**
+	 * Places a call or sends an an IM, Twitter, or SMS message. To start a call, use the Session API to tell Tropo to launch your code. 
+	 *
+	 * @param string|Call $call
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/call.htm
+	 */
 	public function call($call, Array $params=NULL) {
 	if(!is_object($call)) {
   	  $p = array('call', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
@@ -105,6 +162,14 @@ class Tropo extends BaseClass {
 		$this->call = sprintf($call);
 	}
 	
+	/**
+	 * This object allows multiple lines in separate sessions to be conferenced together so that the parties on each line can talk to each other simultaneously. 
+	 * This is a voice channel only feature. 
+	 *
+	 * @param string|Conference $conference
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/conference.htm
+	 */
 	public function conference($conference, Array $params=NULL) {
 		if(!is_object($conference)) {
 			$p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator');
@@ -118,32 +183,61 @@ class Tropo extends BaseClass {
 		$this->conference = sprintf($conference);
 	}
 	
+	/**
+	 * This function instructs Tropo to "hang-up" or disconnect the session associated with the current session.
+	 * @see https://www.tropo.com/docs/webapi/hangup.htm
+	 */
 	public function hangup() {
 		$hangup = new Hangup();
 		$this->hangup = sprintf($hangup);
 	}
 	
+	/**
+	 * A shortcut method to create a session, say something, and hang up, all in one step. This is particularly useful for sending out a quick SMS or IM. 
+	 *
+	 * @param string|Message $message
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/message.htm
+	 */
 	public function message($message, Array $params=null) {
 	  if(!is_object($message)) {
-			$say = new Say($message);
-			$to = $params["to"];
-			$p = array('channel', 'network', 'from', 'voice', 'timeout', 'answerOnMedia','headers');
-			foreach ($p as $option) {
-  	    if (is_array($params) && array_key_exists($option, $params)) {
+	  	$say = new Say($message);
+  		$to = $params["to"];
+  		$p = array('channel', 'network', 'from', 'voice', 'timeout', 'answerOnMedia','headers');
+  		foreach ($p as $option) {
+		  	if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
-  	    }
+		  	}
 	  	}
 	  	$message = new Message($say, $to, $channel, $network, $from, $voice, $timeout, $answerOnMedia, $headers);
-		}
-		$this->message = sprintf($message);		
-		
+	  }
+	  $this->message = sprintf($message);
 	}
 	
+	/**
+	 * Adds an event callback so that your application may be notified when a particular event occurs. 
+	 * Possible events are: "continue", "error", "incomplete" and "hangup". 
+	 *
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/on.htm
+	 */
 	public function on(Array $params) {		
-		$on = new On($params["event"], $params["next"], $params["null"]);
+		$say = new Say($params["say"]);
+		$on = new On($params["event"], $params["next"], $say);
 		$this->on = sprintf($on);
 	}
 	
+	/**
+	 * Plays a prompt (audio file or text to speech) and optionally waits for a response from the caller that is recorded. 
+	 * If collected, responses may be in the form of DTMF or speech recognition using a simple grammar format defined below. 
+	 * The record funtion is really an alias of the prompt function, but one which forces the record option to true regardless of how it is (or is not) initially set. 
+	 * At the conclusion of the recording, the audio file may be automatically sent to an external server via FTP or an HTTP POST/Multipart Form. 
+	 * If specified, the audio file may also be transcribed and the text returned to you via an email address or HTTP POST/Multipart Form.
+	 *
+	 * @param string|Record $record
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/record.htm
+	 */
 	public function record($record, Array $params=NULL) {
 		if(!is_object($record)) {
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
@@ -160,24 +254,48 @@ class Tropo extends BaseClass {
 		$this->record = sprintf($record);		
 	}
 	
+	/**
+	 * The redirect function forwards an incoming call to another destination / phone number before answering it. 
+	 * The redirect function must be called before answer is called; redirect expects that a call be in the ringing or answering state. 
+	 * Use transfer when working with active answered calls. 
+	 *
+	 * @param string|Redirect $redirect
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/redirect.htm
+	 */
 	public function redirect($redirect, Array $params=NULL) {
 		if(!is_object($redirect)) {
 			$to = isset($params["to"]) ? $params["to"]: null;
-			$from = isset($params["from"]) ? $params["to"] : null;
+			$from = isset($params["from"]) ? $params["from"] : null;
 			$redirect = new Redirect($to, $from);
 		}
 		$this->redirect = sprintf($redirect);
 	}
 	
+	/**
+	 * Allows Tropo applications to reject incoming sessions before they are answered. 
+	 * For example, an application could inspect the callerID variable to determine if the user is known, and then use the reject call accordingly. 
+	 * 
+	 * @see https://www.tropo.com/docs/webapi/reject.htm
+	 *
+	 */
 	public function reject() {
 		$reject = new Reject();
 		$this->reject = sprintf($reject);
 	}
 	
+	/**
+	 * When the current session is a voice channel this key will either play a message or an audio file from a URL. 
+	 * In the case of an text channel it will send the text back to the user via i nstant messaging or SMS. 
+	 *
+	 * @param string|Say $say
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/say.htm
+	 */
 	public function say($say, Array $params=NULL) {
 		if(!is_object($say)) {
-		  if (isset($this->voice)) {
-		    $voice = $this->voice;
+		  if (isset($this->_voice)) {
+		    $voice = $this->_voice;
 		  }
 			$p = array('value', 'as', 'format', 'event','voice');
 			$value = $say;
@@ -191,6 +309,14 @@ class Tropo extends BaseClass {
 		$this->say = array(sprintf($say));	
 	}
 	
+	/**
+	 * Allows Tropo applications to begin recording the current session. 
+	 * The resulting recording may then be sent via FTP or an HTTP POST/Multipart Form. 
+	 *
+	 * @param string|StartRecording $startRecording
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/startrecording.htm
+	 */
 	public function startRecording($startRecording, Array $params=NULL) {
 		if(!is_object($startRecording)) {
 			$p = array('format', 'method', 'password', 'url', 'username');
@@ -204,11 +330,24 @@ class Tropo extends BaseClass {
 		$this->startRecording = sprintf($startRecording);
 	}
 	
+	/**
+	 * Stops a previously started recording.
+	 * 
+	 *
+	 */
 	public function stopRecording() {
 		$stopRecording = new stopRecording();
 		$this->stopRecording = sprintf($stopRecording);
 	}
 	
+	/**
+	 * Transfers an already answered call to another destination / phone number. 
+	 * Call may be transferred to another phone number or SIP address, which is set through the "to" parameter and is in URL format.
+	 *
+	 * @param string|Transfer $transfer
+	 * @param array $params
+	 * @see https://www.tropo.com/docs/webapi/transfer.htm
+	 */
 	public function transfer($transfer, Array $params=NULL) {
 		if(!is_object($transfer)) {
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
@@ -226,30 +365,49 @@ class Tropo extends BaseClass {
 		$this->transfer = sprintf($transfer);
 	}
 	
+	/**
+	 * Renders the Tropo object as JSON.
+	 *
+	 */
 	public function renderJSON() {
 		header('Content-type: application/json');
 		echo $this;
 	}
 	
-	public function __set($name, $value) {
+	/**
+	 * Allows undefined methods to be called.
+	 * This method is invloked by Tropo class methods to add action items to the Tropo array.
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	private function __set($name, $value) {
 		array_push($this->tropo, array($name => $value));
 	}	
 	
+	/**
+	 * Controls how JSON structure for the Tropo object is rendered.
+	 *
+	 * @return string
+	 */
 	public function __toString() {
-	  // remove voice and language so they don't appear in the json
-	  unset($this->voice);
-	  unset($this->language);
-		return $this->unescapeJSON(json_encode($this));	
+		// Remove voice and language so they do not appear in the rednered JSON.
+	  	unset($this->_voice);
+	  	unset($this->_language);
+	  	
+	  	// Call the unescapeJSON() method in the parent class.
+	  	return parent::unescapeJSON(json_encode($this));	
 	}	
 }
 
 /**
- * Action classes. Each object represents a specific Tropo action.
+ * Action classes. Each specific object represents a specific Tropo action.
  *
  */
 
 /**
  * Sends a prompt to the user and optionally waits for a response.
+ * @package TropoPHP
  *
  */
 class Ask extends BaseClass {
@@ -305,7 +463,8 @@ class Ask extends BaseClass {
 
 /**
  * This object allows Tropo to make an outbound call. The call can be over voice or one
- * of the text channels. 
+ * of the text channels.
+ * @package TropoPHP
  *
  */
 class Call extends BaseClass {
@@ -361,7 +520,7 @@ class Call extends BaseClass {
 
 /**
  * Defines the input to be collected from the user.
- *
+ * @package TropoPHP
  */
 class Choices extends BaseClass {
 	
@@ -400,6 +559,7 @@ class Choices extends BaseClass {
  *   This is a voice channel only feature. 
  * 
  * TODO: Conference object should support multiple event handlers (e.g. join and leave).
+ * @package TropoPHP
  *
  */
 class Conference extends BaseClass {
@@ -450,13 +610,15 @@ class Conference extends BaseClass {
 }
 
 /**
- * This function instructs Tropo to "hang-up" or disconnect the session associated with the current session. 
+ * This function instructs Tropo to "hang-up" or disconnect the session associated with the current session.
+ * @package TropoPHP
  *
  */
 class Hangup extends EmptyBaseClass { }
 
 /**
  * This function instructs Tropo to send a message. 
+ * @package TropoPHP
  *
  */
 class Message extends BaseClass {
@@ -514,9 +676,9 @@ class Message extends BaseClass {
 	}
 }
 
-
 /**
- * Adds an event callback so that your application may be notified when a particular event occurs
+ * Adds an event callback so that your application may be notified when a particular event occurs.
+ * @package TropoPHP
  *
  */
 class On extends BaseClass {
@@ -551,7 +713,8 @@ class On extends BaseClass {
 }
 
 /**
- * Plays a prompt (audio file or text to speech) and optionally waits for a response from the caller that is recorded. 
+ * Plays a prompt (audio file or text to speech) and optionally waits for a response from the caller that is recorded.
+ * @package TropoPHP
  *
  */
 class Record extends BaseClass {
@@ -627,6 +790,7 @@ class Record extends BaseClass {
 
 /**
  * The redirect function forwards an incoming call to another destination / phone number before answering it.
+ * @package TropoPHP
  *
  */
 class Redirect extends BaseClass {
@@ -658,12 +822,14 @@ class Redirect extends BaseClass {
 
 /**
  * Allows Tropo applications to reject incoming sessions before they are answered.
+ * @package TropoPHP
  *
  */
 class Reject extends EmptyBaseClass { }
 
 /**
- * Returned anytime a request is made to the Tropo Web API. 
+ * Returned anytime a request is made to the Tropo Web API.
+ * @package TropoPHP
  *
  */
 class Result {
@@ -775,7 +941,8 @@ class Result {
 
 /**
  * When the current session is a voice channel this key will either play a message or an audio file from a URL. 
- * In the case of an text channel it will send the text back to the user via i nstant messaging or SMS. 
+ * In the case of an text channel it will send the text back to the user via i nstant messaging or SMS.
+ * @package TropoPHP
  *
  */
 class Say extends BaseClass {
@@ -822,6 +989,7 @@ class Say extends BaseClass {
  *
  * TODO: Consider using associative array for To and From.
  * TODO: Need to break out headers into a more accessible data structure.
+ * @package TropoPHP
  */
 class Session {
 	
@@ -852,7 +1020,7 @@ class Session {
 		$this->_initialText = $session->session->initialText;
 		$this->_to = array($session->session->to->id, $session->session->to->channel, $session->session->to->name, $session->session->to->network);
 		$this->_from = array($session->session->from->id, $session->session->from->channel, $session->session->from->name, $session->session->from->network);
-		$this->_headers = $session->session->headers;			
+		$this->_headers = $session->session->headers;
 		$this->_parameters = $session->session->parameters;			
 	}
 	
@@ -920,12 +1088,12 @@ class Session {
   	  return $this->_parameters;	    
 	  }
 	}
-
 }
 
 /**
  * Allows Tropo applications to begin recording the current session. 
- * The resulting recording may then be sent via FTP or an HTTP POST/Multipart Form. 
+ * The resulting recording may then be sent via FTP or an HTTP POST/Multipart Form.
+ * @package TropoPHP
  * 
  */
 class StartRecording extends BaseClass {
@@ -969,8 +1137,18 @@ class StartRecording extends BaseClass {
 	}	
 }
 
+/**
+ * Stop an already started recording.
+ * @package TropoPHP
+ *
+ */
 class StopRecording extends EmptyBaseClass { }
 
+/**
+ * Transcribes spoken text.
+ * @package TropoPHP
+ *
+ */
 class Transcription extends BaseClass {
 	
 	private $_url;
@@ -1004,6 +1182,7 @@ class Transcription extends BaseClass {
 
 /**
  * Transfers an already answered call to another destination / phone number. 
+ * @package TropoPHP
  *
  */
 class Transfer extends BaseClass {
@@ -1055,6 +1234,7 @@ class Transfer extends BaseClass {
 
 /**
  * Defnies an endoint for transfer and redirects.
+ * @package TropoPHP
  *
  */
 class Endpoint extends BaseClass {
@@ -1096,11 +1276,9 @@ class Endpoint extends BaseClass {
 
 
 /**
- * Helper classes. These object are used with action classes to set option values.
- *
- * TODO: Need to complete properties for attribute classes.
+ * Date Helper class.
+ * @package TropoPHP
  */
-
 class Date {
 	public static $monthDayYear = "mdy";
 	public static $dayMonthYear = "dmy";
@@ -1113,6 +1291,10 @@ class Date {
 	public static $day = "d";		
 }
 
+/**
+ * Duration Helper class.
+ * @package TropoPHP
+ */
 class Duration {
 	public static $hoursMinutesSeconds = "hms";
 	public static $hoursMinutes = "hm";	
@@ -1121,6 +1303,10 @@ class Duration {
 	public static $seconds = "s";
 }
 
+/**
+ * Event Helper class.
+ * @package TropoPHP
+ */
 class Event {
 	
 	public static $continue = 'continue';
@@ -1131,6 +1317,10 @@ class Event {
 	public static $leave = 'leave';
 }
 
+/**
+ * Format Helper class.
+ * @package TropoPHP
+ */
 class Format {
 	public $date;
 	public $duration;
@@ -1143,12 +1333,20 @@ class Format {
 	}
 }
 
+/**
+ * SayAs Helper class.
+ * @package TropoPHP
+ */
 class SayAs {
 	public static $date = "DATE";
 	public static $digits = "DIGITS";
 	public static $number = "NUMBER";
 }
 
+/**
+ * Network Helper class.
+ * @package TropoPHP
+ */
 class Network {
 	public static $pstn = "PSTN";
 	public static $voip = "VOIP";
@@ -1161,14 +1359,45 @@ class Network {
 	public static $twitter = "TWITTER";
 }
 
+/**
+ * Channel Helper class.
+ * @package TropoPHP
+ */
 class Channel {
 	public static $voice = "VOICE";
 	public static $text = "TEXT";
 }
 
+/**
+ * AudioFormat Helper class.
+ * @package TropoPHP
+ */
 class AudioFormat {
 	public static $wav = "audio/wav";
 	public static $mp3 = "audio/mp3";
+}
+
+/**
+ * Voice Helper class.
+ * @package TropoPHP
+ */
+class Voice {
+	public static $Castilian_Spanish_male = "jorge";
+	public static $Castilian_Spanish_female = "carmen";
+	public static $French_male = "bernard";
+	public static $French_female = "florence";
+	public static $US_English_male = "dave";
+	public static $US_English_female = "jill";
+	public static $British_English_male = "dave";
+	public static $British_English_female = "kate";
+	public static $German_male = "stefan";
+	public static $German_female = "katrin";
+	public static $Italian_male = "luca";
+	public static $Italian_female = "paola";
+	public static $Dutch_male = "willem";
+	public static $Dutch_female = "saskia";
+	public static $Mexican_Spanish_male = "carlos";
+	public static $Mexican_Spanish_female = "soledad";
 }
 
 ?>
