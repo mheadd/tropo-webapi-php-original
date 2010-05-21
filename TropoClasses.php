@@ -81,7 +81,7 @@ class Tropo extends BaseClass {
 		  }
 		  $p = array('as', 'format', 'event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
 			foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
+  	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
@@ -96,7 +96,7 @@ class Tropo extends BaseClass {
 	if(!is_object($call)) {
   	  $p = array('call', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
   	  foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
+  	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
   	  }
@@ -109,7 +109,7 @@ class Tropo extends BaseClass {
 		if(!is_object($conference)) {
 			$p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator');
 	  	foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
+  	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
@@ -129,7 +129,7 @@ class Tropo extends BaseClass {
 			$to = $params["to"];
 			$p = array('channel', 'network', 'from', 'voice', 'timeout', 'answerOnMedia','headers');
 			foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
+  	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
@@ -151,7 +151,7 @@ class Tropo extends BaseClass {
 			$transcription =$params["transcription"];
 			$p = array('attempts', 'bargein', 'beep', 'format', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username');
 			foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
+  	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
@@ -182,7 +182,7 @@ class Tropo extends BaseClass {
 			$p = array('value', 'as', 'format', 'event','voice');
 			$value = $say;
 			foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
+  	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
@@ -195,7 +195,7 @@ class Tropo extends BaseClass {
 		if(!is_object($startRecording)) {
 			$p = array('format', 'method', 'password', 'url', 'username');
 			foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
+  	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
@@ -217,7 +217,7 @@ class Tropo extends BaseClass {
 			$on = isset($params["on"]) ? new On($params["on"]) : null;
 			$p = array('answerOnMedia', 'ringRepeat', 'timeout');
 			foreach ($p as $option) {
-  	    if (array_key_exists($option, $params)) {
+  	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
@@ -297,7 +297,7 @@ class Ask extends BaseClass {
 		if(isset($this->_minConfidence)) { $this->minConfidence = $this->_minConfidence; }
 		if(isset($this->_name)) { $this->name = $this->_name; }
 		if(isset($this->_required)) { $this->required = $this->_required; }
-		if(isset($this->_say)) { $this->say = $this->_say; }
+		if(isset($this->_say)) { $this->say = array($this->_say); }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
 		return $this->unescapeJSON(json_encode($this));
 	}
