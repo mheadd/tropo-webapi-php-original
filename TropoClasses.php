@@ -129,15 +129,24 @@ class Tropo extends BaseClass {
 	public function ask($ask, Array $params=NULL) {
 		if(!is_object($ask)) {
 			$voice = isset($this->_voice) ? $this->_voice : null;
-		  	$p = array('as', 'format', 'event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
+		  $p = array('as', 'format', 'event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
 			foreach ($p as $option) {
-		  	    if (is_array($params) && array_key_exists($option, $params)) {
-		  	    	$$option = $params[$option];
-		  	    }
-	  		}
-		  	$say = new Say($ask, $as, $event, $format, $voice);
+  	    if (is_array($params) && array_key_exists($option, $params)) {
+  	    	$$option = $params[$option];
+  	    }
+  		}
+  		if (is_array($event)) {
+  		  // If an event was passed in, we need to create the say as an array
+  		  // The first thing we'll say is the string passed to ask.
+  	  	$say[] = new Say($ask, $as, null, $format, $voice);   
+  		  foreach ($event as $e => $val){
+  		    $say[] = new Say($val, $as, $e, $format, $voice); 
+  		  }
+  		} else {
+  	  	$say = new Say($ask, $as, $event, $format, $voice);  		  
+  		}
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
-		  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
+	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
 		}
 		$this->ask = sprintf($ask);
 	}
@@ -243,13 +252,13 @@ class Tropo extends BaseClass {
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
 			$say = $params["say"];
 			$transcription =$params["transcription"];
-			$p = array('attempts', 'bargein', 'beep', 'format', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username');
+			$p = array('attempts', 'bargein', 'beep', 'format', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username', 'url');
 			foreach ($p as $option) {
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$record = new Record($attempts, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username);
+	  	$record = new Record($attempts, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username, $url);
 		}
 		$this->record = sprintf($record);		
 	}
@@ -351,10 +360,9 @@ class Tropo extends BaseClass {
 	public function transfer($transfer, Array $params=NULL) {
 		if(!is_object($transfer)) {
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
-			$to = isset($params["to"]) ? $params["to"]: null;
-			$from = isset($params["from"]) ? $params["to"] : null;
+			$to = isset($params["to"]) ? $params["to"]: $transfer;
 			$on = isset($params["on"]) ? new On($params["on"]) : null;
-			$p = array('answerOnMedia', 'ringRepeat', 'timeout');
+			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from');
 			foreach ($p as $option) {
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
@@ -381,7 +389,7 @@ class Tropo extends BaseClass {
 	 * @param string $name
 	 * @param mixed $value
 	 */
-	private function __set($name, $value) {
+	public function __set($name, $value) {
 		array_push($this->tropo, array($name => $value));
 	}	
 	
@@ -733,6 +741,7 @@ class Record extends BaseClass {
 	private $_timeout;
 	private $_transcription;
 	private $_username;	
+	private $_url;	
 	
 	/**
 	 * Class constructor
@@ -749,8 +758,9 @@ class Record extends BaseClass {
 	 * @param Say $say
 	 * @param int $timeout
 	 * @param string $username
+	 * @param string $url
 	 */
-	public function __construct($attempts=NULL, $bargein=NULL, $beep=NULL, Choices $choices=NULL, $format=NULL, $maxSilence=NULL, $maxTime=NULL, $method=NULL, $password=NULL, $required=NULL, $say=NULL, $timeout=NULL, $transcription=NULL, $username=NULL) {
+	public function __construct($attempts=NULL, $bargein=NULL, $beep=NULL, Choices $choices=NULL, $format=NULL, $maxSilence=NULL, $maxTime=NULL, $method=NULL, $password=NULL, $required=NULL, $say=NULL, $timeout=NULL, $transcription=NULL, $username=NULL, $url=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_beep = $beep;
@@ -760,10 +770,14 @@ class Record extends BaseClass {
 		$this->_maxTime = $maxTime;
 		$this->_method = $method;
 		$this->_password = $password;
+		if (!is_object($say)) {
+		  $say = new Say($say);
+		}
 		$this->_say = isset($say) ? sprintf($say) : null;
 		$this->_timeout = $timeout;
 		$this->_transcription = isset($transcription) ? sprintf($transcription) : null;
 		$this->_username = $username;		
+		$this->_url = $url;		
 	}
 	
 	/**
@@ -784,6 +798,7 @@ class Record extends BaseClass {
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
 		if(isset($this->_transcription)) { $this->transcription = $this->_transcription; }	
 		if(isset($this->_username)) { $this->username = $this->_username; }		
+		if(isset($this->_url)) { $this->url = $this->_url; }		
 		return $this->unescapeJSON(json_encode($this));	
 	}
 }
@@ -1206,8 +1221,8 @@ class Transfer extends BaseClass {
 	 * @param int $ringRepeat
 	 * @param int $timeout
 	 */
-	public function __construct(Endpoint $to, $answerOnMedia=NULL, Choices $choices=NULL, Endpoint $from=NULL, On $on=NULL, $ringRepeat=NULL, $timeout=NULL) {
-		$this->_to = sprintf($to);	
+	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, Endpoint $from=NULL, On $on=NULL, $ringRepeat=NULL, $timeout=NULL) {
+		$this->_to = $to;
 		$this->_answerOnMedia = $answerOnMedia;
 		$this->_choices = isset($choices) ? sprintf($choices) : null; 
 		$this->_from = isset($from) ? sprintf($from) : null;
