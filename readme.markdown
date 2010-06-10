@@ -6,30 +6,34 @@ TropoPHP is a set of PHP classes for working with [Tropo's cloud communication s
 Usage
 =====
 
-<?php    
-require 'TropoClasses.php';
+Answer the phone, say something, and hang up.
 
-$tropo = new Tropo();    
-// Use Tropo's text to speech to say a phrase.    
-$tropo->Say('Yes, Tropo is this easy.');    
+    <?php    
+    require 'TropoClasses.php';
 
-// Render the JSON back to Tropo.
-$tropo->RenderJSON();    
-?>    
+    $tropo = new Tropo();    
+    // Use Tropo's text to speech to say a phrase.    
+    $tropo->Say('Yes, Tropo is this easy.');    
 
-<?php
-require 'TropoPHP.php';
+    // Render the JSON back to Tropo.
+    $tropo->RenderJSON();    
+    ?>    
+    
+Asking for input.
 
-$tropo = new Tropo();
-$tropo->ask('What is your favorite programming language?', array(
-  'choices'=>'PHP, Ruby(Ruby, Rails, Ruby on Rails), Python, Java(Groovy, Java), Perl',
-  'event'=> array(
-    'nomatch' => 'Never heard of it.',
-    'timeout' => 'Speak up!',
-    )
-  ));
-// Tell Tropo how to continue if a successful choice was made
-$tropo->on(array('event' => 'continue', 'say'=> 'Fantastic! I love that, too!'));
-// Render the JSON back to Tropo    
-$tropo->renderJSON();
-?>
+    <?php
+    require 'TropoPHP.php';
+
+    $tropo = new Tropo();
+    $tropo->ask('What is your favorite programming language?', array(
+      'choices'=>'PHP, Ruby(Ruby, Rails, Ruby on Rails), Python, Java(Groovy, Java), Perl',
+      'event'=> array(
+        'nomatch' => 'Never heard of it.',
+        'timeout' => 'Speak up!',
+        )
+      ));
+    // Tell Tropo how to continue if a successful choice was made
+    $tropo->on(array('event' => 'continue', 'say'=> 'Fantastic! I love that, too!'));
+    // Render the JSON back to Tropo    
+    $tropo->renderJSON();
+    ?>
