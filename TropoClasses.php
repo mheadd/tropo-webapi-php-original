@@ -243,12 +243,12 @@ class Tropo extends BaseClass {
 	 * At the conclusion of the recording, the audio file may be automatically sent to an external server via FTP or an HTTP POST/Multipart Form. 
 	 * If specified, the audio file may also be transcribed and the text returned to you via an email address or HTTP POST/Multipart Form.
 	 *
-	 * @param string|Record $record
-	 * @param array $params
+	 * @param array|Record $record
 	 * @see https://www.tropo.com/docs/webapi/record.htm
 	 */
-	public function record($record, Array $params=NULL) {
-		if(!is_object($record)) {
+	public function record($record) {
+		if(!is_object($record) && is_array($record)) {
+		  $params = $record;
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
 			$say = $params["say"];
 			$transcription =$params["transcription"];
