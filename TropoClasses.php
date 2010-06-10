@@ -1033,8 +1033,8 @@ class Session {
 		$this->_timestamp = $session->session->timestamp;
 		$this->_userType = $session->session->userType;
 		$this->_initialText = $session->session->initialText;
-		$this->_to = array($session->session->to->id, $session->session->to->channel, $session->session->to->name, $session->session->to->network);
-		$this->_from = array($session->session->from->id, $session->session->from->channel, $session->session->from->name, $session->session->from->network);
+		$this->_to = array("id" => $session->session->to->id, "channel" => $session->session->to->channel, "name" => $session->session->to->name, "network" => $session->session->to->network);
+		$this->_from = array("id" => $session->session->to->id, "channel" => $session->session->to->channel, "name" => $session->session->to->name, "network" => $session->session->to->network);
 		$this->_headers = $session->session->headers;
 		$this->_parameters = $session->session->parameters;			
 	}
