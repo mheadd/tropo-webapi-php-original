@@ -1036,7 +1036,7 @@ class Session {
 		$this->_to = array("id" => $session->session->to->id, "channel" => $session->session->to->channel, "name" => $session->session->to->name, "network" => $session->session->to->network);
 		$this->_from = array("id" => $session->session->to->id, "channel" => $session->session->to->channel, "name" => $session->session->to->name, "network" => $session->session->to->network);
 		$this->_headers = $session->session->headers;
-		$this->_parameters = $session->session->parameters;			
+		$this->_parameters = (Array) $session->session->parameters;
 	}
 	
 	public function getId() {
