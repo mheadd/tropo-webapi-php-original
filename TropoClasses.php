@@ -1330,6 +1330,7 @@ class Event {
 	public static $hangup = 'hangup';
 	public static $join = 'join';
 	public static $leave = 'leave';
+	public static $ring = 'ring';
 }
 
 /**
