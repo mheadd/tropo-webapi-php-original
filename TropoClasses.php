@@ -360,7 +360,6 @@ class Tropo extends BaseClass {
 		if(!is_object($transfer)) {
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
 			$to = isset($params["to"]) ? $params["to"]: $transfer;
-			$on = isset($params["on"]) ? new On($params["on"]) : null;
 			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from');
 			foreach ($p as $option) {
 	      $$option = null;
@@ -368,7 +367,7 @@ class Tropo extends BaseClass {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $on, $ringRepeat, $timeout);
+	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout);
 		}
 		$this->transfer = sprintf($transfer);
 	}
@@ -1294,12 +1293,11 @@ class Transfer extends BaseClass {
 	 * @param int $ringRepeat
 	 * @param int $timeout
 	 */
-	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, Endpoint $from=NULL, On $on=NULL, $ringRepeat=NULL, $timeout=NULL) {
+	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, Endpoint $from=NULL, $ringRepeat=NULL, $timeout=NULL) {
 		$this->_to = $to;
 		$this->_answerOnMedia = $answerOnMedia;
 		$this->_choices = isset($choices) ? sprintf($choices) : null; 
 		$this->_from = isset($from) ? sprintf($from) : null;
-		$this->_on = isset($on) ? sprintf($on) : null;
 		$this->_ringRepeat = $ringRepeat;
 		$this->_timeout = $timeout;	
 	}
@@ -1313,7 +1311,6 @@ class Transfer extends BaseClass {
 		if(isset($this->_answerOnMedia)) { $this->answerOnMedia = $this->_answerOnMedia; }
 		if(isset($this->_choices)) { $this->choices = $this->_choices; }
 		if(isset($this->_from)) { $this->from = $this->_from; }
-		if(isset($this->_on)) { $this->on = $this->_on; }
 		if(isset($this->_ringRepeat)) { $this->ringRepeat = $this->_ringRepeat; }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
 		return $this->unescapeJSON(json_encode($this));			
