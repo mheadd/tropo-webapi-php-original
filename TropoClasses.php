@@ -211,10 +211,13 @@ class Tropo extends BaseClass {
 	 * @param array $params
 	 * @see https://www.tropo.com/docs/webapi/on.htm
 	 */
-	public function on(Array $params) {		
-	  $say = (array_key_exists('say', $params)) ? new Say($params["say"]) : null;
-	  $next = (array_key_exists('next', $params)) ? $params["next"] : null;
-		$on = new On($params["event"], $next, $say);
+	public function on($on) {	
+	  if (!is_object($on) && is_array($on))	{
+	    $params = $on;
+  	  $say = (array_key_exists('say', $params)) ? new Say($params["say"]) : null;
+  	  $next = (array_key_exists('next', $params)) ? $params["next"] : null;
+  		$on = new On($params["event"], $next, $say);	    
+	  }
 		$this->on = sprintf($on);
 	}
 	
