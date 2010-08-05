@@ -101,6 +101,8 @@ class Tropo extends BaseClass {
 	 *    color, the name value would be "color" while the returned value might be "blue".
 	 *  - required: (bool) Is input required here?
 	 *  - timeout: (float) How long (in seconds) should Tropo wait for input?
+	 *  - mode: (string) Only applies to the voice channel and can be either 'speech', 'dtmf', or 'both'.
+	 *  - terminator: (string) This is the touch-tone key (also known as "DTMF digit") that indicates the end of input. 
 	 *
 	 * @param string|Ask $ask
 	 * @param array $params
@@ -116,8 +118,10 @@ class Tropo extends BaseClass {
   	    	$$option = $params[$option];
   	    }
   		}
-	  	$say = new Say($ask, $as, null, $voice);  		  
-			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
+	  	$say = new Say($ask, $as, null, $voice);
+	  	$params["mode"] = isset($params["mode"]) ? $params["mode"] : null;
+	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
+			$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["dtmf"]) : null;
 	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
 	  	if (is_array($event)) {
 	  	    // If an event was passed in, add the events to the Ask
@@ -625,7 +629,7 @@ class Choices extends BaseClass {
 	public function __toString() {
 		$this->value = $this->_value;
 		if(isset($this->_mode)) { $this->mode = $this->_mode; }
-		if(isset($this->_termChar)) { $this->termChar = $this->_termChar; }	
+		if(isset($this->_termChar)) { $this->terminator = $this->_termChar; }	
 		return $this->unescapeJSON(json_encode($this));	
 	}
 }
