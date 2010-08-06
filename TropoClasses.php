@@ -315,7 +315,7 @@ class Tropo extends BaseClass {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$say = new Say($value, $as, $event, $format, $voice);
+	  	$say = new Say($value, $as, $event, $voice);
 		}
 		$this->say = array(sprintf($say));	
 	}
