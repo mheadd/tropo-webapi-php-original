@@ -122,7 +122,7 @@ class Tropo extends BaseClass {
 	  	$params["mode"] = isset($params["mode"]) ? $params["mode"] : null;
 	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
 			$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["dtmf"]) : null;
-	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout);
+	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice);
 	  	if (is_array($event)) {
 	  	    // If an event was passed in, add the events to the Ask
     		  foreach ($event as $e => $val){
@@ -489,6 +489,7 @@ class Ask extends BaseClass {
 	private $_required;
 	private $_say;
 	private $_timeout;
+	private $_voice;
 	
 	/**
 	 * Class constructor
@@ -501,14 +502,16 @@ class Ask extends BaseClass {
 	 * @param boolean $required
 	 * @param Say $say
 	 * @param int $timeout
+	 * @param string $voice
 	 */
-	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, Say $say=NULL, $timeout=NULL) {
+	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, Say $say=NULL, $timeout=NULL, $voice=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_choices = isset($choices) ? sprintf($choices) : null ;
 		$this->_minConfidence = $minConfidence;
 		$this->_name = $name;
 		$this->_required = $required;
+		$this->_voice = $voice;
 		$this->_say = isset($say) ? sprintf($say) : null;
 		$this->_say = array($this->_say); // Convert the say to an array
 		$this->_timeout = $timeout;		
@@ -527,6 +530,7 @@ class Ask extends BaseClass {
 		if(isset($this->_required)) { $this->required = $this->_required; }
 		if(isset($this->_say)) { $this->say = $this->_say; }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
+		if(isset($this->_voice)) { $this->voice = $this->_voice; }
 		return $this->unescapeJSON(json_encode($this));
 	}
 	
