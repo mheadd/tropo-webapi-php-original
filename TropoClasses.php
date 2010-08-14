@@ -950,9 +950,14 @@ class Result {
 	public function __construct($json=NULL) {
 		if(empty($json)) {
 	 		$json = file_get_contents("php://input");
+	 		// if $json is still empty, there was nothing in 
+	 		// the POST so return
+  		if(empty($json)) {
+	 		  return;
+ 		  }
 	 	}
 		$result = json_decode($json);
-		if (!is_object($result)) {
+		if (!is_object($result) || !property_exists($result)) {
 		  return;
 		}
 		$this->_sessionId = $result->result->sessionId;
@@ -1103,9 +1108,14 @@ class Session {
 	public function __construct($json=NULL) {
 		if(empty($json)) {
 	 		$json = file_get_contents("php://input");
+	 		// if $json is still empty, there was nothing in 
+	 		// the POST so return
+  		if(empty($json)) {
+	 		  return;
+ 		  }
 	 	}
 		$session = json_decode($json);
-		if (!is_object($session)) {
+		if (!is_object($session) || !property_exists($session)) {
 		  return;
 		}
 		$this->_id = $session->session->id;
