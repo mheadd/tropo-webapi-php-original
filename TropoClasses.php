@@ -177,6 +177,64 @@ class Tropo extends BaseClass {
 	}
 	
 	/**
+	 * Launches a new session with the Tropo Session API
+	 *
+	 * Launching a session will cause Tropo to cal your URL as if
+	 * someone has called your phone number. If you want to make an
+	 * outbound call, have your code check the "action" parameter.
+	 * If it's set to "create" then this is a token launched session
+	 * and you can use $tropo->call() to make an outbound call.
+	 *
+	 * Example:
+	 * Your app fetches a phone number from a database does something
+	 * like this...
+	 *
+   * <?php
+	 * include_once 'TropoClasses.php';
+	 * $token = 'your-token-here';
+	 * $tropo = new Tropo();
+	 * $number = 'some number you got from a database';
+	 * $tropo->createSession($token, array('dial' => $number));
+   * ?>
+	 * 
+	 * Your Tropo application looks like this...
+	 *
+	 * <?php
+	 * include_once 'TropoClasses.php';
+	 * $tropo = new Tropo();
+	 * if ($session->getParams("action") == "create") {
+	 *    $tropo->call($session->getParams("dial"));
+	 *    $tropo->say('This is an outbound call.');
+	 * } else {
+	 *    $tropo->say('Thank you for calling us.');
+	 * }
+	 * $tropo->renderJSON();
+	 * ?>
+	 * 
+	 * @param string $token Your outbound session token from Tropo
+	 * @param array $params An array of key value pairs that will be added as query string parameters
+	 * @return bool True if the session was launched successfully 
+	 */
+	public function createSession($token, Array $params = null) {
+	  if (!function_exists('curl_open')) {
+	    throw new Exception('curl not installed.');
+	  }
+	  foreach ($params as $key=>$value) {
+      $querystring .= '&'. $key . '=' . $value;
+    }
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, 'http://api.tropo.com/1.0/sessions?action=create&token=' . $token . $params);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+    $result = curl_exec($ch);
+    curl_close($ch);
+    if (strpos($result, '<success>true</success>') === false) {
+      throw new Exception('Session launch failed.');
+    }
+    return true;
+	}
+	
+	
+	/**
 	 * This function instructs Tropo to "hang-up" or disconnect the session associated with the current session.
 	 * @see https://www.tropo.com/docs/webapi/hangup.htm
 	 */
@@ -934,13 +992,13 @@ class Result {
 	private $_error;
 	private $_actions;
 	private $_name;
-    private $_attempts;
-    private $_disposition;
-    private $_confidence;
-    private $_interpretation;
-    private $_concept;
-    private $_utterance;
-    private $_value;
+  private $_attempts;
+  private $_disposition;
+  private $_confidence;
+  private $_interpretation;
+  private $_concept;
+  private $_utterance;
+  private $_value;
 	
 	/**
 	 * Class constructor
@@ -951,14 +1009,14 @@ class Result {
 		if(empty($json)) {
 	 		$json = file_get_contents("php://input");
 	 		// if $json is still empty, there was nothing in 
-	 		// the POST so return
+	 		// the POST so throw an exception
   		if(empty($json)) {
-	 		  return;
+	 		  throw new Exception('No json available.');
  		  }
 	 	}
 		$result = json_decode($json);
 		if (!is_object($result) || !property_exists($result)) {
-		  return;
+ 		  throw new Exception('Not a result object.');
 		}
 		$this->_sessionId = $result->result->sessionId;
 		$this->_state = $result->result->state;
@@ -1109,14 +1167,14 @@ class Session {
 		if(empty($json)) {
 	 		$json = file_get_contents("php://input");
 	 		// if $json is still empty, there was nothing in 
-	 		// the POST so return
+	 		// the POST so throw exception
   		if(empty($json)) {
-	 		  return;
+	 		  throw new Exception('No json available.', 1);
  		  }
 	 	}
 		$session = json_decode($json);
 		if (!is_object($session) || !property_exists($session)) {
-		  return;
+		  throw new Exception('Not a session object.', 2);
 		}
 		$this->_id = $session->session->id;
 		$this->_accountId = $session->session->accountId;
@@ -1159,7 +1217,7 @@ class Session {
 	public function getHeaders() {
 		return $this->_headers;
 	}
-	
+		
 	/**
 	 * Returns the query string parameters for the session api
 	 *
