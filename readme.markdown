@@ -13,16 +13,16 @@ Answer the phone, say something, and hang up.
 
     $tropo = new Tropo();    
     // Use Tropo's text to speech to say a phrase.    
-    $tropo->Say('Yes, Tropo is this easy.');    
+    $tropo->say('Yes, Tropo is this easy.');    
 
     // Render the JSON back to Tropo.
-    $tropo->RenderJSON();    
+    $tropo->renderJSON();    
     ?>    
     
 Asking for input.
 
     <?php
-    require 'TropoPHP.php';
+    require 'TropoClasses.php';
 
     $tropo = new Tropo();
     $tropo->ask('What is your favorite programming language?', array(
