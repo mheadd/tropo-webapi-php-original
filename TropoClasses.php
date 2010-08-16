@@ -1015,7 +1015,7 @@ class Result {
  		  }
 	 	}
 		$result = json_decode($json);
-		if (!is_object($result) || !property_exists($result)) {
+		if (!is_object($result) || !property_exists($result, "result")) {
  		  throw new Exception('Not a result object.');
 		}
 		$this->_sessionId = $result->result->sessionId;
@@ -1173,7 +1173,7 @@ class Session {
  		  }
 	 	}
 		$session = json_decode($json);
-		if (!is_object($session) || !property_exists($session)) {
+		if (!is_object($session) || !property_exists($session, "session")) {
 		  throw new Exception('Not a session object.', 2);
 		}
 		$this->_id = $session->session->id;
