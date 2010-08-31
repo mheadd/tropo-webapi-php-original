@@ -42,6 +42,12 @@ class Tropo extends BaseClass {
 	 */
 	private $_language;
 	
+	// URL for the Tropo session API.
+	const SessionAPI = 'http://api.tropo.com/1.0/sessions?action=create&token=';
+	
+	// Success response from Tropo Session API.
+	const SessionResponse = '<success>true</success>';
+	
 	/**
 	 * Class constructor for the Tropo class.
 	 * @access private
@@ -142,7 +148,7 @@ class Tropo extends BaseClass {
 	 */
 	public function call($call, Array $params=NULL) {
 	if(!is_object($call)) {
-  	  $p = array('call', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
+  	  $p = array('to', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
   	  foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
@@ -189,13 +195,13 @@ class Tropo extends BaseClass {
 	 * Your app fetches a phone number from a database does something
 	 * like this...
 	 *
-   * <?php
+     * <?php
 	 * include_once 'TropoClasses.php';
 	 * $token = 'your-token-here';
 	 * $tropo = new Tropo();
 	 * $number = 'some number you got from a database';
 	 * $tropo->createSession($token, array('dial' => $number));
-   * ?>
+     * ?>
 	 * 
 	 * Your Tropo application looks like this...
 	 *
@@ -216,21 +222,29 @@ class Tropo extends BaseClass {
 	 * @return bool True if the session was launched successfully 
 	 */
 	public function createSession($token, Array $params = null) {
-	  if (!function_exists('curl_open')) {
-	    throw new Exception('curl not installed.');
-	  }
-	  foreach ($params as $key=>$value) {
-      $querystring .= '&'. $key . '=' . $value;
-    }
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, 'http://api.tropo.com/1.0/sessions?action=create&token=' . $token . $params);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    $result = curl_exec($ch);
-    curl_close($ch);
-    if (strpos($result, '<success>true</success>') === false) {
-      throw new Exception('Session launch failed.');
-    }
-    return true;
+		if (!function_exists('curl_init')) {
+		  throw new Exception('PHP curl not installed.');
+		}
+		if(isset($params)) {
+			foreach ($params as $key=>$value) {
+		    	$querystring .= '&'. $key . '=' . $value;
+		    }	
+		}
+
+	    $ch = curl_init(self::SessionAPI.$token.$querystring);
+	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	    $result = curl_exec($ch);
+	    $error = curl_error($ch);
+	    curl_close($ch);
+	    
+		if($result === false) {
+	    	throw new Exception('An error occurred: '.$error);
+		 } else {
+		   if (strpos($result, self::SessionResponse) === false) {
+		     throw new Exception('An error occurred: Tropo session launch failed.');
+		   }
+		  return true;
+		 }
 	}
 	
 	
@@ -992,13 +1006,13 @@ class Result {
 	private $_error;
 	private $_actions;
 	private $_name;
-  private $_attempts;
-  private $_disposition;
-  private $_confidence;
-  private $_interpretation;
-  private $_concept;
-  private $_utterance;
-  private $_value;
+  	private $_attempts;
+  	private $_disposition;
+  	private $_confidence;
+ 	private $_interpretation;
+  	private $_concept;
+  	private $_utterance;
+  	private $_value;
 	
 	/**
 	 * Class constructor
@@ -1011,7 +1025,7 @@ class Result {
 	 		// if $json is still empty, there was nothing in 
 	 		// the POST so throw an exception
   		if(empty($json)) {
-	 		  throw new Exception('No json available.');
+	 		  throw new Exception('No JSON available.');
  		  }
 	 	}
 		$result = json_decode($json);
@@ -1169,7 +1183,7 @@ class Session {
 	 		// if $json is still empty, there was nothing in 
 	 		// the POST so throw exception
   		if(empty($json)) {
-	 		  throw new Exception('No json available.', 1);
+	 		  throw new Exception('No JSON available.', 1);
  		  }
 	 	}
 		$session = json_decode($json);
@@ -1183,7 +1197,7 @@ class Session {
 		$this->_initialText = $session->session->initialText;
 		$this->_to = array("id" => $session->session->to->id, "channel" => $session->session->to->channel, "name" => $session->session->to->name, "network" => $session->session->to->network);
 		$this->_from = array("id" => $session->session->from->id, "channel" => $session->session->from->channel, "name" => $session->session->from->name, "network" => $session->session->from->network);
-		$this->_headers = $session->session->headers;
+		$this->_headers = self::setHeaders($session->session->headers);
 		$this->_parameters = property_exists($session->session, 'parameters') ? (Array) $session->session->parameters : null;			
 	}
 	
@@ -1250,6 +1264,14 @@ class Session {
   	  }
   	  return $this->_parameters;	    
 	  }
+	}
+	
+	public function setHeaders($headers) {
+		$formattedHeaders = new Headers();
+		foreach($headers as $name => $value) {
+			$formattedHeaders->$name = $value;
+		}
+		return $formattedHeaders;
 	}
 }
 
@@ -1361,7 +1383,7 @@ class Transfer extends BaseClass {
 	/**
 	 * Class constructor
 	 *
-	 * @param Endpoint $to
+	 * @param string $to
 	 * @param boolean $answerOnMedia
 	 * @param Choices $choices
 	 * @param Endpoint $from
@@ -1560,6 +1582,23 @@ class Voice {
 	public static $Dutch_female = "saskia";
 	public static $Mexican_Spanish_male = "carlos";
 	public static $Mexican_Spanish_female = "soledad";
+}
+
+/**
+ * SIP Headers Helper class.
+ * @package TropoPHP_Support
+ */
+class Headers {
+	
+	public function __set($name, $value) {
+		if(!strstr($name, "-")) {
+			$this->$name = $value;	
+		} else {
+			$name = str_replace("-", "_", $name);
+			$this->$name = $value;	
+		}		
+	}
+	
 }
 
 ?>
