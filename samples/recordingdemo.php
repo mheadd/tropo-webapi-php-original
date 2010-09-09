@@ -1,5 +1,5 @@
 <?php
-require_once 'TropoClasses.php';
+require_once 'tropo.class.php';
 
 // KLogger is a logging class from 
 // http://codefury.net/projects/klogger/

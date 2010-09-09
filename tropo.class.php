@@ -196,7 +196,7 @@ class Tropo extends BaseClass {
 	 * like this...
 	 *
      * <?php
-	 * include_once 'TropoClasses.php';
+	 * include_once 'tropo.class.php';
 	 * $token = 'your-token-here';
 	 * $tropo = new Tropo();
 	 * $number = 'some number you got from a database';
@@ -206,7 +206,7 @@ class Tropo extends BaseClass {
 	 * Your Tropo application looks like this...
 	 *
 	 * <?php
-	 * include_once 'TropoClasses.php';
+	 * include_once 'tropo.class.php';
 	 * $tropo = new Tropo();
 	 * if ($session->getParams("action") == "create") {
 	 *    $tropo->call($session->getParams("dial"));

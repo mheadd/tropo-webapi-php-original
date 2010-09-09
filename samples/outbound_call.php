@@ -1,5 +1,5 @@
 <?php
-include_once 'TropoClasses.php';
+include_once 'tropo.class.php';
 $token = 'your token here';
 $number = 'the number you would like to dial';
 

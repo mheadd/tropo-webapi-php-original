@@ -1,6 +1,6 @@
 <?php
 require_once 'PHPUnit/Framework.php';
-require_once 'TropoClasses.php';
+require_once 'tropo.class.php';
  
 class MessageTest extends PHPUnit_Framework_TestCase
 {

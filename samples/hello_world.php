@@ -5,7 +5,7 @@
  */
 
 // Include Tropo classes.
-require('TropoClasses.php');
+require('tropo.class.php');
 
 $tropo = new Tropo();
 $tropo->Say("Hello World!");
