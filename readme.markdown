@@ -9,7 +9,7 @@ Usage
 Answer the phone, say something, and hang up.
 
     <?php    
-    require 'TropoClasses.php';
+    require 'tropo.class.php';
 
     $tropo = new Tropo();    
     // Use Tropo's text to speech to say a phrase.    
@@ -22,7 +22,7 @@ Answer the phone, say something, and hang up.
 Asking for input.
 
     <?php
-    require 'TropoClasses.php';
+    require 'tropo.class.php';
 
     $tropo = new Tropo();
     $tropo->ask('What is your favorite programming language?', array(

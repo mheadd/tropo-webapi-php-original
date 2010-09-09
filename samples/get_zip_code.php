@@ -1,7 +1,7 @@
 <?php
 
 // Include Tropo classes.
-require('TropoClasses.php');
+require('tropo.class.php');
 
 // Include Limonade framework.
 require('path/to/limonade/lib/limonade.php');
