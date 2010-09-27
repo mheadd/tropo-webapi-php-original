@@ -16,6 +16,8 @@
  * @see https://www.tropo.com/docs/webapi/tropo.htm
  *
  */
+include 'tropo-rest.class.php';
+
 class Tropo extends BaseClass {
 	
 	/**
@@ -41,12 +43,6 @@ class Tropo extends BaseClass {
 	 * @access private
 	 */
 	private $_language;
-	
-	// URL for the Tropo session API.
-	const SessionAPI = 'http://api.tropo.com/1.0/sessions?action=create&token=';
-	
-	// Success response from Tropo Session API.
-	const SessionResponse = '<success>true</success>';
 	
 	/**
 	 * Class constructor for the Tropo class.
@@ -181,72 +177,6 @@ class Tropo extends BaseClass {
 		}
 		$this->conference = sprintf($conference);
 	}
-	
-	/**
-	 * Launches a new session with the Tropo Session API
-	 *
-	 * Launching a session will cause Tropo to cal your URL as if
-	 * someone has called your phone number. If you want to make an
-	 * outbound call, have your code check the "action" parameter.
-	 * If it's set to "create" then this is a token launched session
-	 * and you can use $tropo->call() to make an outbound call.
-	 *
-	 * Example:
-	 * Your app fetches a phone number from a database does something
-	 * like this...
-	 *
-     * <?php
-	 * include_once 'tropo.class.php';
-	 * $token = 'your-token-here';
-	 * $tropo = new Tropo();
-	 * $number = 'some number you got from a database';
-	 * $tropo->createSession($token, array('dial' => $number));
-     * ?>
-	 * 
-	 * Your Tropo application looks like this...
-	 *
-	 * <?php
-	 * include_once 'tropo.class.php';
-	 * $tropo = new Tropo();
-	 * if ($session->getParams("action") == "create") {
-	 *    $tropo->call($session->getParams("dial"));
-	 *    $tropo->say('This is an outbound call.');
-	 * } else {
-	 *    $tropo->say('Thank you for calling us.');
-	 * }
-	 * $tropo->renderJSON();
-	 * ?>
-	 * 
-	 * @param string $token Your outbound session token from Tropo
-	 * @param array $params An array of key value pairs that will be added as query string parameters
-	 * @return bool True if the session was launched successfully 
-	 */
-	public function createSession($token, Array $params = null) {
-		if (!function_exists('curl_init')) {
-		  throw new Exception('PHP curl not installed.');
-		}
-		if(isset($params)) {
-			foreach ($params as $key=>$value) {
-		    	$querystring .= '&'. $key . '=' . $value;
-		    }	
-		}
-
-	    $ch = curl_init(self::SessionAPI.$token.$querystring);
-	    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-	    $result = curl_exec($ch);
-	    $error = curl_error($ch);
-	    curl_close($ch);
-	    
-		if($result === false) {
-	    	throw new Exception('An error occurred: '.$error);
-		 } else {
-		   if (strpos($result, self::SessionResponse) === false) {
-		     throw new Exception('An error occurred: Tropo session launch failed.');
-		   }
-		  return true;
-		 }
-	}
-	
 	
 	/**
 	 * This function instructs Tropo to "hang-up" or disconnect the session associated with the current session.
@@ -446,6 +376,195 @@ class Tropo extends BaseClass {
 	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout);
 		}
 		$this->transfer = sprintf($transfer);
+	}
+
+	/**
+	 * Launches a new session with the Tropo Session API.
+	 * (Pass through to SessionAPI class.)
+	 * 
+	 * @param string $token Your outbound session token from Tropo
+	 * @param array $params An array of key value pairs that will be added as query string parameters
+	 * @return bool True if the session was launched successfully 
+	 */
+	public function createSession($token, Array $params=NULL) {
+		try {
+			$session = new SessionAPI();
+			$result = $session->createSession($token, $params);
+			return $result;
+		}
+		// If an exception occurs, wrap it in a TropoException and rethrow.
+		catch (Exception $ex) {
+			throw new TropoException($ex->getMessage(), $ex->getCode());
+		}		
+	}
+	
+	/**
+	 * Creates a new Tropo Application
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param string $userid
+	 * @param string $password
+	 * @param array $params
+	 * @return string JSON
+	 */
+	public function createApplication($userid, $password, Array $params) {
+		$p = array('href', 'name', 'voiceUrl', 'messagingUrl', 'platform', 'partition');
+		foreach ($p as $property) {
+			$$property = null;
+			if (is_array($params) && array_key_exists($property, $params)) {
+	  	      $$property = $params[$property];
+	  	    }
+		}
+		try {
+			$provision = new ProvisioningAPI($userid, $password);
+			$result = $provision->createApplication($href, $name, $voiceUrl, $messagingUrl, $platform, $partition);
+			return $result;
+		}
+		// If an exception occurs, wrap it in a TropoException and rethrow.
+		catch (Exception $ex) {
+			throw new TropoException($ex->getMessage(), $ex->getCode());
+		}
+	}
+	
+	/**
+	 * Add/Update an address (phone number, IM address or token) for an existing Tropo application.
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param string $userid
+	 * @param string $password
+	 * @param string $applicationID
+	 * @param array $params
+	 * @return string JSON
+	 */
+	public function updateApplicationAddress($userid, $passwd, $applicationID, Array $params) {
+		$p = array('type', 'prefix', 'number', 'city', 'state', 'channel', 'username', 'password', 'token');
+		foreach ($p as $property) {
+			$$property = null;
+			if (is_array($params) && array_key_exists($property, $params)) {
+	  	      $$property = $params[$property];
+	  	    }
+		}
+		try {
+			$provision = new ProvisioningAPI($userid, $passwd);
+			$result = $provision->updateApplicationAddress($applicationID, $type, $prefix, $number, $city, $state, $channel, $username, $password, $token);
+			return $result;
+		}
+		// If an exception occurs, wrap it in a TropoException and rethrow.
+		catch (Exception $ex) {
+			throw new TropoException($ex->getMessage(), $ex->getCode());
+		}
+	}
+	
+	/**
+	 * Update a property (name, URL, platform, etc.) for an existing Tropo application.
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param string $userid
+	 * @param string $password
+	 * @param string $applicationID
+	 * @param array $params
+	 * @return string JSON
+	 */
+	public function updateApplicationProperty($userid, $password, $applicationID, Array $params) {
+		$p = array('href', 'name', 'voiceUrl', 'messagingUrl', 'platform', 'partition');
+		foreach ($p as $property) {
+			$$property = null;
+			if (is_array($params) && array_key_exists($property, $params)) {
+	  	      $$property = $params[$property];
+	  	    }
+		}
+		try {
+			$provision = new ProvisioningAPI($userid, $password);
+			$result = $provision->updateApplicationProperty($applicationID, $href, $name, $voiceUrl, $messagingUrl, $platform, $partition);
+			return $result;
+		}
+		// If an exception occurs, wrap it in a TropoException and rethrow.
+		catch (Exception $ex) {
+			throw new TropoException($ex->getMessage(), $ex->getCode());
+		}
+	}
+	
+	/**
+	 * Delete an existing Tropo application.
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param string $userid
+	 * @param string $password
+	 * @param string $applicationID
+	 * @return string JSON
+	 */
+	public function deleteApplication($userid, $password, $applicationID) {
+		$provision = new ProvisioningAPI($userid, $password);
+		return $provision->deleteApplication($applicationID);
+	}
+	
+	/**
+	 * Delete an address for an existing Tropo application.
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param string $userid
+	 * @param string $password
+	 * @param string $applicationID
+	 * @param string $number
+	 * @return string JSON
+	 */
+	public function deleteApplicationAddress($userid, $password, $applicationID, $addresstype, $address) {
+		$provision = new ProvisioningAPI($userid, $password);
+		return $provision->deleteApplicationAddress($applicationID, $addresstype, $address);
+	}
+	
+	/**
+	 * View a list of Tropo applications.
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param string $userid
+	 * @param string $password
+	 * @return string JSON
+	 */
+	public function viewApplications($userid, $password) {
+		$provision = new ProvisioningAPI($userid, $password);
+		return $provision->viewApplications();
+	}
+	
+	/**
+	 * View the details of a specific Tropo application.
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param string $userid
+	 * @param string $password
+	 * @param string $applicationID
+	 * @return string JSON
+	 */
+	public function viewSpecificApplication($userid, $password, $applicationID) {
+		$provision = new ProvisioningAPI($userid, $password);
+		return $provision->viewSpecificApplication($applicationID);
+	}
+	
+	/**
+	 * View the addresses for a specific Tropo application.
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param string $userid
+	 * @param string $password
+	 * @param string $applicationID
+	 * @return string JSON
+	 */
+	public function viewAddresses($userid, $password, $applicationID) {
+		$provision = new ProvisioningAPI($userid, $password);
+		return $provision->viewAddresses($applicationID);
+	}
+	
+	/**
+	 * View a list of available exchanges for assigning a number to a Tropo application.
+	 * (Pass through to ProvisioningAPI class).
+	 *
+	 * @param unknown_type $userid
+	 * @param unknown_type $password
+	 * @return unknown
+	 */
+	public function viewExchanges($userid, $password) {
+		$provision = new ProvisioningAPI($userid, $password);
+		return $provision->viewExchanges();
 	}
 	
 	/**
@@ -1025,12 +1144,12 @@ class Result {
 	 		// if $json is still empty, there was nothing in 
 	 		// the POST so throw an exception
   		if(empty($json)) {
-	 		  throw new Exception('No JSON available.');
+	 		  throw new TropoException('No JSON available.');
  		  }
 	 	}
 		$result = json_decode($json);
 		if (!is_object($result) || !property_exists($result, "result")) {
- 		  throw new Exception('Not a result object.');
+ 		  throw new TropoException('Not a result object.');
 		}
 		$this->_sessionId = $result->result->sessionId;
 		$this->_state = $result->result->state;
@@ -1183,12 +1302,12 @@ class Session {
 	 		// if $json is still empty, there was nothing in 
 	 		// the POST so throw exception
   		if(empty($json)) {
-	 		  throw new Exception('No JSON available.', 1);
+	 		  throw new TropoException('No JSON available.', 1);
  		  }
 	 	}
 		$session = json_decode($json);
 		if (!is_object($session) || !property_exists($session, "session")) {
-		  throw new Exception('Not a session object.', 2);
+		  throw new TropoException('Not a session object.', 2);
 		}
 		$this->_id = $session->session->id;
 		$this->_accountId = $session->session->accountId;
@@ -1457,6 +1576,11 @@ class Endpoint extends BaseClass {
 	}
 }
 
+/**
+ * A helper class for wrapping exceptions. Can be modified for custom excpetion handling.
+ *
+ */
+class TropoException extends Exception { }
 
 /**
  * Date Helper class.
