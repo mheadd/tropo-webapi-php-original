@@ -365,15 +365,15 @@ class Tropo extends BaseClass {
 	public function transfer($transfer, Array $params=NULL) {
 		if(!is_object($transfer)) {
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
-			$to = isset($params["to"]) ? $params["to"]: $transfer;
-			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from');
+			$to = isset($params["to"]) ? $params["to"] : $transfer;
+			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'on');
 			foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout);
+	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on);
 		}
 		$this->transfer = sprintf($transfer);
 	}
@@ -1510,13 +1510,14 @@ class Transfer extends BaseClass {
 	 * @param int $ringRepeat
 	 * @param int $timeout
 	 */
-	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, Endpoint $from=NULL, $ringRepeat=NULL, $timeout=NULL) {
+	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, Endpoint $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL) {
 		$this->_to = $to;
 		$this->_answerOnMedia = $answerOnMedia;
 		$this->_choices = isset($choices) ? sprintf($choices) : null; 
 		$this->_from = isset($from) ? sprintf($from) : null;
 		$this->_ringRepeat = $ringRepeat;
-		$this->_timeout = $timeout;	
+		$this->_timeout = $timeout;
+		$this->_on = isset($on) ? sprintf($on) : null;
 	}
 	
 	/**
@@ -1529,7 +1530,8 @@ class Transfer extends BaseClass {
 		if(isset($this->_choices)) { $this->choices = $this->_choices; }
 		if(isset($this->_from)) { $this->from = $this->_from; }
 		if(isset($this->_ringRepeat)) { $this->ringRepeat = $this->_ringRepeat; }
-		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
+		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
+		if(isset($this->_on)) { $this->on = $this->_on; }		
 		return $this->unescapeJSON(json_encode($this));			
 	}	
 }
