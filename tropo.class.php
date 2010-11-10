@@ -120,17 +120,17 @@ class Tropo extends BaseClass {
   	    	$$option = $params[$option];
   	    }
   		}
-	  	$say = new Say($ask, $as, null, $voice);
+	  	$say[] = new Say($ask, $as, null, $voice);
+	  	if (is_array($event)) {
+	  	    // If an event was passed in, add the events to the Ask
+    		  foreach ($event as $e => $val){
+    		    $say[] = new Say($val, $as, $e, $voice); 
+    		  }
+	  	}
 	  	$params["mode"] = isset($params["mode"]) ? $params["mode"] : null;
 	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
 			$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["dtmf"]) : null;
 	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice);
-	  	if (is_array($event)) {
-	  	    // If an event was passed in, add the events to the Ask
-    		  foreach ($event as $e => $val){
-    		    $ask->addEvent(new Say($val, $as, $e, $voice)); 
-    		  }
-	  	}
  		}
 		$this->ask = sprintf($ask);
 	}
@@ -241,7 +241,7 @@ class Tropo extends BaseClass {
 		if(!is_object($record) && is_array($record)) {
 		  $params = $record;
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
-			$say = $params["say"];
+			$say = new Say($params["say"], $params["as"], null, $params["voice"]);
 			if (is_array($params['transcription'])) {
 			  $p = array('url', 'id', 'emailFormat');
   			foreach ($p as $option) {
@@ -695,7 +695,7 @@ class Ask extends BaseClass {
 	 * @param int $timeout
 	 * @param string $voice
 	 */
-	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, Say $say=NULL, $timeout=NULL, $voice=NULL) {
+	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, $say=NULL, $timeout=NULL, $voice=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_choices = isset($choices) ? sprintf($choices) : null ;
@@ -703,9 +703,8 @@ class Ask extends BaseClass {
 		$this->_name = $name;
 		$this->_required = $required;
 		$this->_voice = $voice;
-		$this->_say = isset($say) ? sprintf($say) : null;
-		$this->_say = array($this->_say); // Convert the say to an array
-		$this->_timeout = $timeout;		
+		$this->_say = isset($say) ? $say : null;
+		$this->_timeout = $timeout;	
 	}
 	
 	/**
@@ -720,6 +719,11 @@ class Ask extends BaseClass {
 		if(isset($this->_name)) { $this->name = $this->_name; }
 		if(isset($this->_required)) { $this->required = $this->_required; }
 		if(isset($this->_say)) { $this->say = $this->_say; }
+		if (is_array($this->_say)) {
+		  foreach ($this->_say as $k => $v) {
+		    $this->_say[$k] = sprintf($v);
+		  }
+		}
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
 		if(isset($this->_voice)) { $this->voice = $this->_voice; }
 		return $this->unescapeJSON(json_encode($this));
@@ -733,7 +737,7 @@ class Ask extends BaseClass {
 	 * @param Say $say A say object
 	 */
 	public function addEvent(Say $say) {
-	  $this->_say[] = sprintf($say);
+	  $this->_say[] = $say;
 	}
 }
 
