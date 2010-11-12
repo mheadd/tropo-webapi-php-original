@@ -31,7 +31,7 @@ class SessionAPI extends RestBase {
 		
 		if(isset($params)) {
 			foreach ($params as $key=>$value) {
-		    	@ $querystring .= '&'. $key . '=' . $value;
+		    	@ $querystring .= '&'. urlencode($key) . '=' . urlencode($value);
 		    }	
 		}
 		

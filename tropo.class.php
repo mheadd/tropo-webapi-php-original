@@ -1391,8 +1391,12 @@ class Session {
 	
 	public function setHeaders($headers) {
 		$formattedHeaders = new Headers();
-		foreach($headers as $name => $value) {
-			$formattedHeaders->$name = $value;
+		// headers don't exist on outboud calls
+		// so only do this if there are headers
+		if (is_array($headers)) {
+  		foreach($headers as $name => $value) {
+  			$formattedHeaders->$name = $value;
+  		}		  
 		}
 		return $formattedHeaders;
 	}
