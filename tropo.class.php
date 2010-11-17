@@ -123,7 +123,7 @@ class Tropo extends BaseClass {
 	  	$say = new Say($ask, $as, null, $voice);
 	  	$params["mode"] = isset($params["mode"]) ? $params["mode"] : null;
 	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
-			$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["dtmf"]) : null;
+			$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
 	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice);
 	  	if (is_array($event)) {
 	  	    // If an event was passed in, add the events to the Ask
