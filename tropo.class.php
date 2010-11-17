@@ -129,7 +129,7 @@ class Tropo extends BaseClass {
 	  	}
 	  	$params["mode"] = isset($params["mode"]) ? $params["mode"] : null;
 	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
-			$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["dtmf"]) : null;
+			$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
 	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice);
  		}
 		$this->ask = sprintf($ask);
