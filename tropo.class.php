@@ -112,7 +112,6 @@ class Tropo extends BaseClass {
 	 */
 	public function ask($ask, Array $params=NULL) {
 		if(!is_object($ask)) {
-			$voice = isset($this->_voice) ? $this->_voice : null;
 		  $p = array('as','event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
 			foreach ($p as $option) {
 	      $$option = null;
@@ -129,7 +128,8 @@ class Tropo extends BaseClass {
 	  	}
 	  	$params["mode"] = isset($params["mode"]) ? $params["mode"] : null;
 	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
-			$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
+	  	$voice = isset($this->_voice) ? $this->_voice : null;
+		$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
 	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice);
  		}
 		$this->ask = sprintf($ask);
@@ -306,9 +306,6 @@ class Tropo extends BaseClass {
 	 */
 	public function say($say, Array $params=NULL) {
 		if(!is_object($say)) {
-		  if (isset($this->_voice)) {
-		    $voice = $this->_voice;
-		  }
 			$p = array('as', 'format', 'event','voice');
 			$value = $say;
 			foreach ($p as $option) {
@@ -317,6 +314,7 @@ class Tropo extends BaseClass {
   	      $$option = $params[$option];
   	    }
 	  	}
+	  	$voice = isset($voice) ? $voice : $this->_voice;
 	  	$say = new Say($value, $as, $event, $voice);
 		}
 		$this->say = array(sprintf($say));	
