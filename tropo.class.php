@@ -1516,11 +1516,11 @@ class Transfer extends BaseClass {
 	 * @param int $ringRepeat
 	 * @param int $timeout
 	 */
-	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, Endpoint $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL) {
+	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL) {
 		$this->_to = $to;
 		$this->_answerOnMedia = $answerOnMedia;
 		$this->_choices = isset($choices) ? sprintf($choices) : null; 
-		$this->_from = isset($from) ? sprintf($from) : null;
+		$this->_from = $from;
 		$this->_ringRepeat = $ringRepeat;
 		$this->_timeout = $timeout;
 		$this->_on = isset($on) ? sprintf($on) : null;
