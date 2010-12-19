@@ -54,8 +54,9 @@ class SessionAPI extends RestBase {
 
 class ProvisioningAPI extends RestBase {
 	
-	// URL for the Tropo provisioning API.
-	const ProvisioningURLBase = 'http://api.tropo.com/provisioning/';
+	// URLs for the Tropo provisioning API.
+	const ApplicationProvisioningURLBase = 'http://api.tropo.com/v1/';
+	const ExchangeProvisioningURLBase = 'http://api.tropo.com/v1/exchanges';
 		
 	public function __construct($userid, $password) {
 		parent::__construct($userid, $password);
@@ -75,7 +76,7 @@ class ProvisioningAPI extends RestBase {
 	public function createApplication($href, $name, $voiceUrl, $messagingUrl, $platform, $partition) {
 		
 		$payload = json_encode(new Application($href, $name, $voiceUrl, $messagingUrl, $platform, $partition));
-		$url = self::ProvisioningURLBase.'applications';
+		$url = self::ApplicationProvisioningURLBase.'applications';
 		return self::makeAPICall('POST', $url, $payload);
 		
 	}
@@ -98,7 +99,7 @@ class ProvisioningAPI extends RestBase {
 	public function updateApplicationAddress($applicationID, $type, $prefix=NULL, $number=NULL, $city=NULL, $state=NULL, $channel=NULL, $username=NULL, $password=NULL, $token=NULL) {
 		
 		$payload = json_encode(new Address($type, $prefix, $number, $city, $state, $channel, $username, $password, $token));
-		$url = self::ProvisioningURLBase.'applications/'.$applicationID.'/addresses';		
+		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID.'/addresses';		
 		return self::makeAPICall('POST', $url, $payload);
 		
 	}
@@ -118,7 +119,7 @@ class ProvisioningAPI extends RestBase {
 	public function updateApplicationProperty($applicationID, $href=NULL, $name=NULL, $voiceUrl=NULL, $messagingUrl=NULL, $platform=NULL, $partition=NULL) {
 		
 		$payload = json_encode(new Application($href, $name, $voiceUrl, $messagingUrl, $platform, $partition));
-		$url = self::ProvisioningURLBase.'applications/'.$applicationID;		
+		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID;		
 		return self::makeAPICall('PUT', $url, $payload);
 		
 	}
@@ -131,7 +132,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function deleteApplication($applicationID) {
 		
-		$url = self::ProvisioningURLBase.'applications/'.$applicationID;
+		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID;
 		return self::makeAPICall('DELETE', $url);
 		
 	}
@@ -146,7 +147,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function deleteApplicationAddress($applicationID, $type, $address) {
 		
-		$url = self::ProvisioningURLBase.'applications/'.$applicationID.'/addresses/'.$type.'/'.$address;
+		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID.'/addresses/'.$type.'/'.$address;
 		return self::makeAPICall('DELETE', $url);
 		
 	}
@@ -158,7 +159,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewApplications() {
 		
-		$url = self::ProvisioningURLBase.'applications';
+		$url = self::ApplicationProvisioningURLBase.'applications';
 		return self::makeAPICall('GET', $url);
 		
 	}
@@ -171,7 +172,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewSpecificApplication($applicationID) {
 		
-		$url = self::ProvisioningURLBase.'applications/'.$applicationID;
+		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID;
 		return self::makeAPICall('GET', $url);
 		
 	}
@@ -184,7 +185,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewAddresses($applicationID) {
 		
-		$url = self::ProvisioningURLBase.'applications/'.$applicationID.'/addresses';
+		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID.'/addresses';
 		return self::makeAPICall('GET', $url);
 		
 	}
@@ -196,7 +197,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewExchanges() {
 		
-		$url = self::ProvisioningURLBase.'exchanges';
+		$url = self::ExchangeProvisioningURLBase;
 		return self::makeAPICall('GET', $url);
 
 	}
@@ -353,7 +354,8 @@ class Exchange {
 		if(isset($prefix)) { $this->prefix = $prefix; }
 		if(isset($city)) { $this->city = $city; }
 		if(isset($state)) { $this->state = $state; }
-		if(isset($country)) { $this->country = $country; }		
+		if(isset($country)) { $this->country = $country; }
+		if(isset($description)) { $this->description = $description; }
 	}
 	
 	public function __set($attribute, $value) {

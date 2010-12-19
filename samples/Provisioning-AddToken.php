@@ -16,7 +16,7 @@ $applicationID = "";
 $tropo = new Tropo();
 
 try {
-	echo $tropo->updateApplicationAddress($userid, $password, $applicationID, array("type" => AddressType::$token, "channel" => "voice"));
+	echo $tropo->updateApplicationAddress($userid, $password, $applicationID, array("type" => AddressType::$token, "channel" => "messaging"));
 }
 
 catch (TropoException $ex) {

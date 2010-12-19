@@ -16,7 +16,10 @@ $applicationID = "";
 $tropo = new Tropo();
 
 try {
-	echo $tropo->updateApplicationAddress($userid, $password, $applicationID, array("type" => AddressType::$number, "prefix" => "1407"));
+	
+	$params  = array("type" => AddressType::$number, "prefix" => "1407");
+	echo $tropo->updateApplicationAddress($userid, $password, $applicationID, $params);
+
 }
 
 catch (TropoException $ex) {

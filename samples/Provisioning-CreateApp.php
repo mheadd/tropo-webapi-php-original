@@ -17,13 +17,17 @@ $password = "";
 $tropo = new Tropo();
 
 try {
-	$appSettings = array("name" => "My Awesome App", 
-						 "voiceUrl" => "http://www.fake.com/index.php", 
-						 "messagingUrl" => "http://www.fake.com/index2.php", 
-						 "platform" => "webapi", 
-						 "partition" => "staging");	
+	
+	$appSettings = array(
+		"name" => "My Awesome App", 
+		"voiceUrl" => "http://www.fake.com/index.php", 
+		"messagingUrl" => "http://www.fake.com/index2.php", 
+		"platform" => "webapi", 
+		"partition" => "staging"
+	);	
 	
 	echo $tropo->createApplication($userid, $password, $appSettings);
+	
 }
 
 catch (TropoException $ex) {
