@@ -8,7 +8,7 @@
 require('tropo.class.php');
 
 $tropo = new Tropo();
-$tropo->Say("Hello World!");
-$tropo->RenderJson();
+$tropo->say("Hello World!");
+$tropo->renderJson();
 
 ?>
