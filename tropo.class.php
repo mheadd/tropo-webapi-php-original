@@ -89,30 +89,13 @@ class Tropo extends BaseClass {
 	 * pass in a fully-formed Ask object or a string to use as the 
 	 * prompt and an array of parameters.
 	 *
-	 * The available parameters are
-	 *  - choices: (string) The grammar to use in recognizing and validating input
-	 *  - as: (string) an SSML type hinting how to say the TTS
-	 *  - event: (string) only say this on certain events (i.e. no input)
-	 *  - voice: (string) Override the default TTS voice
-	 *  - attempts: (int) How many times the caller can attempt input before
-	 *    an error is thrown
-	 *  - bargein: (bool) Should the user be allowed to barge in before TTS is complete?
-	 *  - minConfidence: (int) How confident should Tropo be in a speech reco match?
-	 *  - name: (string) identifies the return value of an ask, so you know the context for 
-	 *    the returned information. As an example, if you asked the user for their favorite 
-	 *    color, the name value would be "color" while the returned value might be "blue".
-	 *  - required: (bool) Is input required here?
-	 *  - timeout: (float) How long (in seconds) should Tropo wait for input?
-	 *  - mode: (string) Only applies to the voice channel and can be either 'speech', 'dtmf', or 'both'.
-	 *  - terminator: (string) This is the touch-tone key (also known as "DTMF digit") that indicates the end of input. 
-	 *
 	 * @param string|Ask $ask
 	 * @param array $params
 	 * @see https://www.tropo.com/docs/webapi/ask.htm
 	 */
 	public function ask($ask, Array $params=NULL) {
 		if(!is_object($ask)) {
-		  $p = array('as','event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout');
+		  $p = array('as','event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout', 'allowSignals');
 			foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
@@ -130,7 +113,7 @@ class Tropo extends BaseClass {
 	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
 	  	$voice = isset($this->_voice) ? $this->_voice : null;
 		$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
-	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice);
+	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice, $allowSignals);
  		}
 		$this->ask = sprintf($ask);
 	}
@@ -144,14 +127,14 @@ class Tropo extends BaseClass {
 	 */
 	public function call($call, Array $params=NULL) {
 	if(!is_object($call)) {
-  	  $p = array('to', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording');
+  	  $p = array('to', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording', 'allowSignals');
   	  foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
   	  }
-		$call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording);
+		$call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording, $allowSignals);
 	}
 		$this->call = sprintf($call);
 	}
@@ -166,14 +149,14 @@ class Tropo extends BaseClass {
 	 */
 	public function conference($conference, Array $params=NULL) {
 		if(!is_object($conference)) {
-			$p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator');
+			$p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator', 'allowSignals');
 	  	foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator);
+	  	$conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator, $allowSignals);
 		}
 		$this->conference = sprintf($conference);
 	}
@@ -254,14 +237,14 @@ class Tropo extends BaseClass {
 			} else {
 			  $transcription = $params["transcription"];
 			}
-			$p = array('attempts', 'bargein', 'beep', 'format', 'maxTime', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username', 'url');
+			$p = array('attempts', 'bargein', 'beep', 'format', 'maxTime', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username', 'url', 'allowSignals');
 			foreach ($p as $option) {
 			  $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$record = new Record($attempts, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username, $url);
+	  	$record = new Record($attempts, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username, $url, $allowSignals);
 		}
 		$this->record = sprintf($record);		
 	}
@@ -306,7 +289,7 @@ class Tropo extends BaseClass {
 	 */
 	public function say($say, Array $params=NULL) {
 		if(!is_object($say)) {
-			$p = array('as', 'format', 'event','voice');
+			$p = array('as', 'format', 'event','voice', 'allowSignals');
 			$value = $say;
 			foreach ($p as $option) {
 			  $$option = null;
@@ -315,7 +298,7 @@ class Tropo extends BaseClass {
   	    }
 	  	}
 	  	$voice = isset($voice) ? $voice : $this->_voice;
-	  	$say = new Say($value, $as, $event, $voice);
+	  	$say = new Say($value, $as, $event, $voice, $allowSignals);
 		}
 		$this->say = array(sprintf($say));	
 	}
@@ -345,7 +328,7 @@ class Tropo extends BaseClass {
 	/**
 	 * Stops a previously started recording.
 	 * 
-	 *
+	 * @see https://www.tropo.com/docs/webapi/stoprecording.htm
 	 */
 	public function stopRecording() {
 		$stopRecording = new stopRecording();
@@ -364,14 +347,14 @@ class Tropo extends BaseClass {
 		if(!is_object($transfer)) {
 			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
 			$to = isset($params["to"]) ? $params["to"] : $transfer;
-			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'on');
+			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'on', 'allowSignals');
 			foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on);
+	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on, $allowSignals);
 		}
 		$this->transfer = sprintf($transfer);
 	}
@@ -394,6 +377,17 @@ class Tropo extends BaseClass {
 		catch (Exception $ex) {
 			throw new TropoException($ex->getMessage(), $ex->getCode());
 		}		
+	}
+	
+	public function sendEvent($session_id, $value) {
+		try {
+			$event = new EventAPI();
+			$result = $event->sendEvent($session_id, $value);
+			return $result;
+		}
+		catch (Exception $ex) {
+			throw new TropoException($ex->getMessage(), $ex->getCode());
+		}
 	}
 	
 	/**
@@ -556,9 +550,9 @@ class Tropo extends BaseClass {
 	 * View a list of available exchanges for assigning a number to a Tropo application.
 	 * (Pass through to ProvisioningAPI class).
 	 *
-	 * @param unknown_type $userid
-	 * @param unknown_type $password
-	 * @return unknown
+	 * @param string $userid
+	 * @param string $password
+	 * @return string JSON
 	 */
 	public function viewExchanges($userid, $password) {
 		$provision = new ProvisioningAPI($userid, $password);
@@ -679,6 +673,7 @@ class Ask extends BaseClass {
 	private $_say;
 	private $_timeout;
 	private $_voice;
+	private $_allowSignals;
 	
 	/**
 	 * Class constructor
@@ -692,17 +687,19 @@ class Ask extends BaseClass {
 	 * @param Say $say
 	 * @param int $timeout
 	 * @param string $voice
+	 * @param string|array $allowSignals
 	 */
-	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, $say=NULL, $timeout=NULL, $voice=NULL) {
+	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, $say=NULL, $timeout=NULL, $voice=NULL, $allowSignals=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_choices = isset($choices) ? sprintf($choices) : null ;
 		$this->_minConfidence = $minConfidence;
 		$this->_name = $name;
 		$this->_required = $required;
-		$this->_voice = $voice;
 		$this->_say = isset($say) ? $say : null;
 		$this->_timeout = $timeout;	
+		$this->_voice = $voice;
+		$this->_allowSignals = $allowSignals;
 	}
 	
 	/**
@@ -724,6 +721,7 @@ class Ask extends BaseClass {
 		}
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
 		if(isset($this->_voice)) { $this->voice = $this->_voice; }
+		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; } 
 		return $this->unescapeJSON(json_encode($this));
 	}
 	
@@ -755,6 +753,7 @@ class Call extends BaseClass {
 	private $_timeout;
 	private $_headers; 
 	private $_recording;
+	private $_allowSignals;
 	
 	/**
 	 * Class constructor
@@ -767,8 +766,9 @@ class Call extends BaseClass {
 	 * @param int $timeout
 	 * @param array $headers
 	 * @param StartRecording $recording
+	 * @param string|array $allowSignals
 	 */
-	public function __construct($to, $from=NULL, $network=NULL, $channel=NULL, $answerOnMedia=NULL, $timeout=NULL, Array $headers=NULL, StartRecording $recording=NULL) {
+	public function __construct($to, $from=NULL, $network=NULL, $channel=NULL, $answerOnMedia=NULL, $timeout=NULL, Array $headers=NULL, StartRecording $recording=NULL, $allowSignals=NULL) {
 		$this->_to = $to;
 		$this->_from = $from;		
 		$this->_network = $network;		
@@ -777,6 +777,7 @@ class Call extends BaseClass {
 		$this->_timeout = $timeout;
 		$this->_headers = $headers;
 		$this->_recording = isset($recording) ? sprintf($recording) : null ;
+		$this->_allowSignals = $allowSignals;
 	}
 	
 	/**
@@ -791,7 +792,8 @@ class Call extends BaseClass {
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
 		if(isset($this->_answerOnMedia)) { $this->answerOnMedia = $this->_answerOnMedia; }
 		if(count($this->_headers)) { $this->headers = $this->_headers; }		
-		if(isset($this->_recording)) { $this->recording = $this->_recording; }		
+		if(isset($this->_recording)) { $this->recording = $this->_recording; }
+		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
 		return $this->unescapeJSON(json_encode($this));	
 	}	
 }
@@ -849,6 +851,8 @@ class Conference extends BaseClass {
 	private $_playTones;
 	private $_required;
 	private $_terminator;
+	private $_allowSignals;
+	
 	
 	/**
 	 * Class constructor
@@ -860,8 +864,9 @@ class Conference extends BaseClass {
 	 * @param boolean $playTones
 	 * @param boolean $required
 	 * @param string $terminator
+	 * @param string|array $allowSignals
 	 */
-	public function __construct($name, $id=NULL, $mute=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL) {
+	public function __construct($name, $id=NULL, $mute=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL, $allowSignals=NULL) {
 		$this->_name = $name;
 		$this->_id = $id;
 		$this->_mute = $mute;		
@@ -869,6 +874,7 @@ class Conference extends BaseClass {
 		$this->_playTones = $playTones;
 		$this->_required = $required;
 		$this->_terminator = $terminator;
+		$this->_allowSignals = $allowSignals;
 	}
 	
 	/**
@@ -882,7 +888,8 @@ class Conference extends BaseClass {
 		if(isset($this->_on)) { $this->on = $this->_on; }
 		if(isset($this->_playTones)) { $this->playTones = $this->_playTones; }
 		if(isset($this->_required)) { $this->required = $this->_required; }
-		if(isset($this->_terminator)) { $this->terminator = $this->_terminator; }		
+		if(isset($this->_terminator)) { $this->terminator = $this->_terminator; }
+		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }	
 		return $this->unescapeJSON(json_encode($this));	
 	}	
 }
@@ -1012,6 +1019,7 @@ class Record extends BaseClass {
 	private $_transcription;
 	private $_username;	
 	private $_url;	
+	private $_allowSignals;
 	
 	/**
 	 * Class constructor
@@ -1029,8 +1037,9 @@ class Record extends BaseClass {
 	 * @param int $timeout
 	 * @param string $username
 	 * @param string $url
+	 * @param string|array $allowSignals
 	 */
-	public function __construct($attempts=NULL, $bargein=NULL, $beep=NULL, Choices $choices=NULL, $format=NULL, $maxSilence=NULL, $maxTime=NULL, $method=NULL, $password=NULL, $required=NULL, $say=NULL, $timeout=NULL, Transcription $transcription=NULL, $username=NULL, $url=NULL) {
+	public function __construct($attempts=NULL, $bargein=NULL, $beep=NULL, Choices $choices=NULL, $format=NULL, $maxSilence=NULL, $maxTime=NULL, $method=NULL, $password=NULL, $required=NULL, $say=NULL, $timeout=NULL, Transcription $transcription=NULL, $username=NULL, $url=NULL, $allowSignals=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_beep = $beep;
@@ -1047,7 +1056,8 @@ class Record extends BaseClass {
 		$this->_timeout = $timeout;
 		$this->_transcription = isset($transcription) ? sprintf($transcription) : null;
 		$this->_username = $username;		
-		$this->_url = $url;		
+		$this->_url = $url;	
+		$this->_allowSignals = $allowSignals;
 	}
 	
 	/**
@@ -1068,7 +1078,8 @@ class Record extends BaseClass {
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
 		if(isset($this->_transcription)) { $this->transcription = $this->_transcription; }	
 		if(isset($this->_username)) { $this->username = $this->_username; }		
-		if(isset($this->_url)) { $this->url = $this->_url; }		
+		if(isset($this->_url)) { $this->url = $this->_url; }
+		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }	
 		return $this->unescapeJSON(json_encode($this));	
 	}
 }
@@ -1245,6 +1256,7 @@ class Say extends BaseClass {
 	private $_event;
 	private $_format;
 	private $_voice;
+	private $_allowSignals;
 	
 	/**
 	 * Class constructor
@@ -1253,12 +1265,14 @@ class Say extends BaseClass {
 	 * @param SayAs $as
 	 * @param string $event
 	 * @param string $voice
+	 * @param string|array $allowSignals
 	 */
-	public function __construct($value, $as=NULL, $event=NULL, $voice=NULL) {
+	public function __construct($value, $as=NULL, $event=NULL, $voice=NULL, $allowSignals=NULL) {
 		$this->_value = $value;
 		$this->_as = $as;
 		$this->_event = $event;
-		$this->_voice = $voice;		
+		$this->_voice = $voice;
+		$this->_allowSignals = $allowSignals;
 	}
 	
 	/**
@@ -1269,7 +1283,8 @@ class Say extends BaseClass {
 		if(isset($this->_event)) { $this->event = $this->_event; }
 		$this->value = $this->_value;
 		if(isset($this->_as)) { $this->as = $this->_as; }
-		if(isset($this->_voice)) { $this->voice = $this->_voice; }		
+		if(isset($this->_voice)) { $this->voice = $this->_voice; }
+		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }	
 		return $this->unescapeJSON(json_encode($this));	
 	}
 }
@@ -1504,6 +1519,7 @@ class Transfer extends BaseClass {
 	private $_ringRepeat;
 	private $_timeout;
 	private $_to;
+	private $_allowSignals;
 	
 	/**
 	 * Class constructor
@@ -1515,8 +1531,9 @@ class Transfer extends BaseClass {
 	 * @param On $on
 	 * @param int $ringRepeat
 	 * @param int $timeout
+	 * @param string|array $allowSignals
 	 */
-	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL) {
+	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL, $allowSignals=NULL) {
 		$this->_to = $to;
 		$this->_answerOnMedia = $answerOnMedia;
 		$this->_choices = isset($choices) ? sprintf($choices) : null; 
@@ -1524,6 +1541,7 @@ class Transfer extends BaseClass {
 		$this->_ringRepeat = $ringRepeat;
 		$this->_timeout = $timeout;
 		$this->_on = isset($on) ? sprintf($on) : null;
+		$this->_allowSignals = $allowSignals;
 	}
 	
 	/**
@@ -1537,7 +1555,8 @@ class Transfer extends BaseClass {
 		if(isset($this->_from)) { $this->from = $this->_from; }
 		if(isset($this->_ringRepeat)) { $this->ringRepeat = $this->_ringRepeat; }
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
-		if(isset($this->_on)) { $this->on = $this->_on; }		
+		if(isset($this->_on)) { $this->on = $this->_on; }
+		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
 		return $this->unescapeJSON(json_encode($this));			
 	}	
 }
