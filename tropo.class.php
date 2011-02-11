@@ -237,14 +237,14 @@ class Tropo extends BaseClass {
 			} else {
 			  $transcription = $params["transcription"];
 			}
-			$p = array('attempts', 'bargein', 'beep', 'format', 'maxTime', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username', 'url', 'allowSignals');
+			$p = array('attempts', 'allowSignals', 'bargein', 'beep', 'format', 'maxTime', 'maxSilence', 'method', 'password', 'required', 'timeout', 'username', 'url', 'voice');
 			foreach ($p as $option) {
 			  $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$record = new Record($attempts, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username, $url, $allowSignals);
+	  	$record = new Record($attempts, $allowSignals, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username, $url, $voice);
 		}
 		$this->record = sprintf($record);		
 	}
@@ -1005,6 +1005,7 @@ class On extends BaseClass {
 class Record extends BaseClass {
 	
 	private $_attempts;
+	private $_allowSignals;
 	private $_bargein;
 	private $_beep;
 	private $_choices;
@@ -1018,13 +1019,15 @@ class Record extends BaseClass {
 	private $_timeout;
 	private $_transcription;
 	private $_username;	
-	private $_url;	
-	private $_allowSignals;
+	private $_url;
+	private $_voice;
+	
 	
 	/**
 	 * Class constructor
 	 *
 	 * @param int $attempts
+	 * @param string|array $allowSignals
 	 * @param boolean $bargein
 	 * @param boolean $beep
 	 * @param Choices $choices
@@ -1037,10 +1040,11 @@ class Record extends BaseClass {
 	 * @param int $timeout
 	 * @param string $username
 	 * @param string $url
-	 * @param string|array $allowSignals
+	 * @param string $voice 
 	 */
-	public function __construct($attempts=NULL, $bargein=NULL, $beep=NULL, Choices $choices=NULL, $format=NULL, $maxSilence=NULL, $maxTime=NULL, $method=NULL, $password=NULL, $required=NULL, $say=NULL, $timeout=NULL, Transcription $transcription=NULL, $username=NULL, $url=NULL, $allowSignals=NULL) {
+	public function __construct($attempts=NULL, $allowSignals=NULL, $bargein=NULL, $beep=NULL, Choices $choices=NULL, $format=NULL, $maxSilence=NULL, $maxTime=NULL, $method=NULL, $password=NULL, $required=NULL, $say=NULL, $timeout=NULL, Transcription $transcription=NULL, $username=NULL, $url=NULL, $voice=NULL) {
 		$this->_attempts = $attempts;
+		$this->_allowSignals = $allowSignals;
 		$this->_bargein = $bargein;
 		$this->_beep = $beep;
 		$this->_choices = isset($choices) ? sprintf($choices) : null;
@@ -1057,7 +1061,7 @@ class Record extends BaseClass {
 		$this->_transcription = isset($transcription) ? sprintf($transcription) : null;
 		$this->_username = $username;		
 		$this->_url = $url;	
-		$this->_allowSignals = $allowSignals;
+		$this->_voice = $voice;
 	}
 	
 	/**
@@ -1066,6 +1070,7 @@ class Record extends BaseClass {
 	 */
 	public function __toString() {
 		if(isset($this->_attempts)) { $this->attempts = $this->_attempts; }
+		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }	
 		if(isset($this->_bargein)) { $this->bargein = $this->_bargein; }
 		if(isset($this->_beep)) { $this->beep = $this->_beep; }
 		if(isset($this->_choices)) { $this->choices = $this->_choices; }
@@ -1079,7 +1084,7 @@ class Record extends BaseClass {
 		if(isset($this->_transcription)) { $this->transcription = $this->_transcription; }	
 		if(isset($this->_username)) { $this->username = $this->_username; }		
 		if(isset($this->_url)) { $this->url = $this->_url; }
-		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }	
+		if(isset($this->_voice)) { $this->voice = $this->_voice; }	
 		return $this->unescapeJSON(json_encode($this));	
 	}
 }
