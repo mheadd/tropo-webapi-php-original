@@ -1136,6 +1136,7 @@ class Reject extends EmptyBaseClass { }
 class Result {
 	
 	private $_sessionId;
+	private $_callId;
 	private $_state;
 	private $_sessionDuration;
 	private $_sequence;
@@ -1170,6 +1171,7 @@ class Result {
  		  throw new TropoException('Not a result object.');
 		}
 		$this->_sessionId = $result->result->sessionId;
+		$this->_callId = $result->result->callId;
 		$this->_state = $result->result->state;
 		$this->_sessionDuration = $result->result->sessionDuration;
 		$this->_sequence = $result->result->sequence;
@@ -1189,6 +1191,10 @@ class Result {
 	
 	function getSessionId() {
 		return $this->_sessionId;
+	}
+	
+	function getCallId() {
+		return $this->_callId;
 	}
 	
 	function getState() {
