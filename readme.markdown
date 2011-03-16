@@ -1,6 +1,8 @@
 Overview
 ========
 
+NOTE: This repo is no longer actively maintained.  A fork of this repo is now the official Tropo WebAPI library for PHP. Visit the Tropo GitHub site for the official [PHP library for the Tropo WebAPI](https://github.com/tropo/tropo-webapi-php).
+
 TropoPHP is a set of PHP classes for working with [Tropo's cloud communication service](http://tropo.com/). Tropo allows a developer to create applications that run over the phone, IM, SMS, and Twitter using web technologies. This library communicates with Tropo over JSON.
 
 Usage
