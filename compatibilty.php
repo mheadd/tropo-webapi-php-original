@@ -5,7 +5,7 @@
 
 
 echo "\n\n======================================================\n";
-echo "Begin Tropo WebAPI compatibilty check.\n\n";
+echo "Begin Tropo WebAPI compatibility check.\n\n";
 
 // Check to essure proper PHP version.
 $version = phpversion();
