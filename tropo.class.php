@@ -111,6 +111,7 @@ class Tropo extends BaseClass {
 	  	}
 	  	$params["mode"] = isset($params["mode"]) ? $params["mode"] : null;
 	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
+	  	$params["terminator"] = isset($params["terminator"]) ? $params["terminator"] : null;
 	  	$voice = isset($this->_voice) ? $this->_voice : null;
 		$choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
 	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice, $allowSignals);
@@ -1185,8 +1186,7 @@ class Result {
 		$this->_interpretation = $result->result->actions->interpretation;
 		$this->_utterance = $result->result->actions->utterance;
 		$this->_value = $result->result->actions->value;
-		$this->_concept = $result->result->concept->value;
-		
+		$this->_concept = $result->result->actions->concept;		
 	}
 	
 	function getSessionId() {
