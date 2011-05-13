@@ -95,7 +95,7 @@ class Tropo extends BaseClass {
 	 */
 	public function ask($ask, Array $params=NULL) {
 		if(!is_object($ask)) {
-		  $p = array('as','event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout', 'allowSignals');
+		  $p = array('as','event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout', 'allowSignals', 'recognizer');
 			foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
@@ -116,7 +116,7 @@ class Tropo extends BaseClass {
 	  	   $voice = $this->_voice;
 	  	}
 		  $choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
-	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice, $allowSignals);
+	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice, $allowSignals, $recognizer);
  		}
 		$this->ask = sprintf($ask);
 	}
@@ -348,7 +348,7 @@ class Tropo extends BaseClass {
 	 */
 	public function transfer($transfer, Array $params=NULL) {
 		if(!is_object($transfer)) {
-			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
+			$choices = isset($params["choices"]) ? $params["choices"] : null;
 			$to = isset($params["to"]) ? $params["to"] : $transfer;
 			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'on', 'allowSignals');
 			foreach ($p as $option) {
@@ -677,6 +677,7 @@ class Ask extends BaseClass {
 	private $_timeout;
 	private $_voice;
 	private $_allowSignals;
+	private $_recognizer;
 	
 	/**
 	 * Class constructor
@@ -692,7 +693,7 @@ class Ask extends BaseClass {
 	 * @param string $voice
 	 * @param string|array $allowSignals
 	 */
-	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, $say=NULL, $timeout=NULL, $voice=NULL, $allowSignals=NULL) {
+	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, $say=NULL, $timeout=NULL, $voice=NULL, $allowSignals=NULL, $recognizer=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
 		$this->_choices = isset($choices) ? sprintf($choices) : null ;
@@ -703,6 +704,7 @@ class Ask extends BaseClass {
 		$this->_timeout = $timeout;	
 		$this->_voice = $voice;
 		$this->_allowSignals = $allowSignals;
+		$this->_recognizer = $recognizer;
 	}
 	
 	/**
@@ -725,6 +727,7 @@ class Ask extends BaseClass {
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }		
 		if(isset($this->_voice)) { $this->voice = $this->_voice; }
 		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; } 
+		if(isset($this->_recognizer)) { $this->recognizer = $this->_recognizer; } 
 		return $this->unescapeJSON(json_encode($this));
 	}
 	
@@ -809,19 +812,19 @@ class Choices extends BaseClass {
 	
 	private $_value;
 	private $_mode;
-	private $_termChar;
+	private $_terminator;
 	
 	/**
 	 * Class constructor
 	 *
 	 * @param string $value
 	 * @param string $mode
-	 * @param string $termChar
+	 * @param string $terminator
 	 */
-	public function __construct($value, $mode=NULL, $termChar=NULL) {
+	public function __construct($value=NULL, $mode=NULL, $terminator=NULL) {
 		$this->_value = $value;
 		$this->_mode = $mode;
-		$this->_termChar = $termChar;
+		$this->_terminator = $terminator;
 	}
 	
 	/**
@@ -831,7 +834,7 @@ class Choices extends BaseClass {
 	public function __toString() {
 		$this->value = $this->_value;
 		if(isset($this->_mode)) { $this->mode = $this->_mode; }
-		if(isset($this->_termChar)) { $this->terminator = $this->_termChar; }	
+		if(isset($this->_terminator)) { $this->terminator = $this->_terminator; }	
 		return $this->unescapeJSON(json_encode($this));	
 	}
 }
@@ -1419,7 +1422,7 @@ class Session {
 		$formattedHeaders = new Headers();
 		// headers don't exist on outboud calls
 		// so only do this if there are headers
-		if (is_array($headers)) {
+		if (is_object($headers)) {
   		foreach($headers as $name => $value) {
   			$formattedHeaders->$name = $value;
   		}		  
@@ -1746,6 +1749,24 @@ class Voice {
 	public static $Dutch_female = "saskia";
 	public static $Mexican_Spanish_male = "carlos";
 	public static $Mexican_Spanish_female = "soledad";
+}
+
+/**
+ * Recognizer Helper class
+ * @package TropoPHP_Support
+ *
+ */
+class Recognizer {
+	public static $German = 'de-de';
+	public static $British_English = 'en-gb';
+	public static $US_English = 'en-us';
+	public static $Castilian_Spanish = 'es-es';
+	public static $Mexican_Spanish = 'es-mx'; 
+	public static $French_Canadian = 'fr-ca';
+	public static $French = 'fr-fr';
+	public static $Italian = 'it-it';
+	public static $Polish = 'pl-pl';
+	public static $Dutch = 'nl-nl';	
 }
 
 /**
