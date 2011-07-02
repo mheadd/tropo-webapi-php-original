@@ -350,11 +350,24 @@ class Tropo extends BaseClass {
 		if(!is_object($transfer)) {
 			$choices = isset($params["choices"]) ? $params["choices"] : null;
 			$to = isset($params["to"]) ? $params["to"] : $transfer;
-			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'on', 'allowSignals', 'headers');
+			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'allowSignals', 'headers');
 			foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
+  	    }
+	  	}
+	  	$on = null;
+	  	if (array_key_exists('playvalue', $params) && isset($params['playvalue'])) {
+	  	  $on = new On('ring', null, new Say($params['playvalue']));
+  	  } elseif (array_key_exists('on', $params) && isset($params['on'])) {
+  	    if (is_object($params['on'])) {
+  	      $on = $params['on'];
+  	    } else {
+  	  	  if (strtolower($params['on']['event']) != 'ring') {
+  	  	    throw new TropoException("The only event allowed on transfer is 'ring'"); 
+  	  	  }
+  	  	  $on = new On('ring', null, new Say($params['on']['say']));
   	    }
 	  	}
 	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on, $allowSignals, $headers);
