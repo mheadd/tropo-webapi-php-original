@@ -226,7 +226,13 @@ class Tropo extends BaseClass {
 	public function record($record) {
 		if(!is_object($record) && is_array($record)) {
 		  $params = $record;
-			$choices = isset($params["choices"]) ? new Choices($params["choices"]) : null;
+			$p = array('as', 'voice', 'emailFormat', 'transcription', 'terminator');
+			foreach ($p as $option) {
+			  $params[$option] = array_key_exists($option, $params) ? $params[$option] : null;
+		  }
+			$choices = isset($params["choices"])
+			  ? new Choices(null, null, $params["choices"]) 
+			  : null;
 			$say = new Say($params["say"], $params["as"], null, $params["voice"]);
 			if (is_array($params['transcription'])) {
 			  $p = array('url', 'id', 'emailFormat');
@@ -845,7 +851,7 @@ class Choices extends BaseClass {
 	 *
 	 */
 	public function __toString() {
-		$this->value = $this->_value;
+		if(isset($this->value)){ $this->value = $this->_value; }
 		if(isset($this->_mode)) { $this->mode = $this->_mode; }
 		if(isset($this->_terminator)) { $this->terminator = $this->_terminator; }
 		return $this->unescapeJSON(json_encode($this));
