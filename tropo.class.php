@@ -350,14 +350,14 @@ class Tropo extends BaseClass {
 		if(!is_object($transfer)) {
 			$choices = isset($params["choices"]) ? $params["choices"] : null;
 			$to = isset($params["to"]) ? $params["to"] : $transfer;
-			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'on', 'allowSignals');
+			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'on', 'allowSignals', 'headers');
 			foreach ($p as $option) {
 	      $$option = null;
   	    if (is_array($params) && array_key_exists($option, $params)) {
   	      $$option = $params[$option];
   	    }
 	  	}
-	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on, $allowSignals);
+	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on, $allowSignals, $headers);
 		}
 		$this->transfer = sprintf($transfer);
 	}
@@ -1581,6 +1581,7 @@ class Transfer extends BaseClass {
 	private $_timeout;
 	private $_to;
 	private $_allowSignals;
+	private $_headers;
 
 	/**
 	 * Class constructor
@@ -1593,8 +1594,9 @@ class Transfer extends BaseClass {
 	 * @param int $ringRepeat
 	 * @param int $timeout
 	 * @param string|array $allowSignals
+	 * @param array $headers
 	 */
-	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL, $allowSignals=NULL) {
+	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL, $allowSignals=NULL, Array $headers=NULL) {
 		$this->_to = $to;
 		$this->_answerOnMedia = $answerOnMedia;
 		$this->_choices = isset($choices) ? sprintf($choices) : null;
@@ -1603,6 +1605,7 @@ class Transfer extends BaseClass {
 		$this->_timeout = $timeout;
 		$this->_on = isset($on) ? sprintf($on) : null;
 		$this->_allowSignals = $allowSignals;
+		$this->_headers = $headers;
 	}
 
 	/**
@@ -1618,6 +1621,7 @@ class Transfer extends BaseClass {
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
 		if(isset($this->_on)) { $this->on = $this->_on; }
 		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
+		if(count($this->_headers)) { $this->headers = $this->_headers; }
 		return $this->unescapeJSON(json_encode($this));
 	}
 }
