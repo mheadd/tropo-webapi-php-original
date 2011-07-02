@@ -1326,7 +1326,7 @@ class Say extends BaseClass {
 	 */
 	public function __toString() {
 		if(isset($this->_event)) { $this->event = $this->_event; }
-		$this->value = $this->_value;
+		$this->value = str_replace('%', '%%', $this->_value);
 		if(isset($this->_as)) { $this->as = $this->_as; }
 		if(isset($this->_voice)) { $this->voice = $this->_voice; }
 		if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
