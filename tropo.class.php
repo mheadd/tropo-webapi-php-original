@@ -102,13 +102,13 @@ class Tropo extends BaseClass {
   	    	$$option = $params[$option];
   	    }
   		}
-	  	$say[] = new Say($ask, $as, null, $voice);
 	  	if (is_array($event)) {
 	  	    // If an event was passed in, add the events to the Ask
     		  foreach ($event as $e => $val){
     		    $say[] = new Say($val, $as, $e, $voice);
     		  }
 	  	}
+	  	$say[] = new Say($ask, $as, null, $voice);
 	  	$params["mode"] = isset($params["mode"]) ? $params["mode"] : null;
 	  	$params["dtmf"] = isset($params["dtmf"]) ? $params["dtmf"] : null;
 	  	$params["terminator"] = isset($params["terminator"]) ? $params["terminator"] : null;
