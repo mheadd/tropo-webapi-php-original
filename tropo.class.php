@@ -235,7 +235,7 @@ class Tropo extends BaseClass {
 			  : null;
 			$choices = isset($params["terminator"])
 			  ? new Choices(null, null, $params["terminator"]) 
-			  : null;
+			  : $choices;
 			$say = new Say($params["say"], $params["as"], null, $params["voice"]);
 			if (is_array($params['transcription'])) {
 			  $p = array('url', 'id', 'emailFormat');
@@ -358,6 +358,9 @@ class Tropo extends BaseClass {
 	public function transfer($transfer, Array $params=NULL) {
 		if(!is_object($transfer)) {
 			$choices = isset($params["choices"]) ? $params["choices"] : null;
+			$choices = isset($params["terminator"])
+			  ? new Choices(null, null, $params["terminator"]) 
+			  : $choices;
 			$to = isset($params["to"]) ? $params["to"] : $transfer;
 			$p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'allowSignals', 'headers');
 			foreach ($p as $option) {
