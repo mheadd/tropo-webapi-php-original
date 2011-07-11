@@ -129,16 +129,16 @@ class Tropo extends BaseClass {
 	 * @see https://www.tropo.com/docs/webapi/call.htm
 	 */
 	public function call($call, Array $params=NULL) {
-	if(!is_object($call)) {
-  	  $p = array('to', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording', 'allowSignals');
-  	  foreach ($p as $option) {
-	      $$option = null;
-  	    if (is_array($params) && array_key_exists($option, $params)) {
-  	      $$option = $params[$option];
-  	    }
-  	  }
-		$call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording, $allowSignals);
-	}
+  	if(!is_object($call)) {
+    	  $p = array('to', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording', 'allowSignals');
+    	  foreach ($p as $option) {
+  	      $$option = null;
+    	    if (is_array($params) && array_key_exists($option, $params)) {
+    	      $$option = $params[$option];
+    	    }
+    	  }
+  		$call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording, $allowSignals);
+  	}
 		$this->call = sprintf($call);
 	}
 
@@ -857,7 +857,7 @@ class Choices extends BaseClass {
 	 *
 	 */
 	public function __toString() {
-		if(isset($this->value)){ $this->value = $this->_value; }
+		if(isset($this->_value)){ $this->value = $this->_value; }
 		if(isset($this->_mode)) { $this->mode = $this->_mode; }
 		if(isset($this->_terminator)) { $this->terminator = $this->_terminator; }
 		return $this->unescapeJSON(json_encode($this));
