@@ -236,7 +236,10 @@ class Tropo extends BaseClass {
 			$choices = isset($params["terminator"])
 			  ? new Choices(null, null, $params["terminator"]) 
 			  : $choices;
-			$say = new Say($params["say"], $params["as"], null, $params["voice"]);
+			if (!isset($params['voice'])) {
+			    $params['voice'] = $this->_voice;
+			}
+			$say = new Say($params["say"], $params["as"], null, null);
 			if (is_array($params['transcription'])) {
 			  $p = array('url', 'id', 'emailFormat');
   			foreach ($p as $option) {
