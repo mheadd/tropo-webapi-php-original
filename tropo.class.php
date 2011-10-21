@@ -118,7 +118,7 @@ class Tropo extends BaseClass {
 		  $choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
 	  	$ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice, $allowSignals, $recognizer);
  		}
-		$this->ask = sprintf($ask);
+		$this->ask = sprintf('%s', $ask);
 	}
 
 	/**
@@ -139,7 +139,7 @@ class Tropo extends BaseClass {
     	  }
   		$call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording, $allowSignals);
   	}
-		$this->call = sprintf($call);
+		$this->call = sprintf('%s', $call);
 	}
 
 	/**
@@ -161,7 +161,7 @@ class Tropo extends BaseClass {
 	  	}
 	  	$conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator, $allowSignals);
 		}
-		$this->conference = sprintf($conference);
+		$this->conference = sprintf('%s', $conference);
 	}
 
 	/**
@@ -170,7 +170,7 @@ class Tropo extends BaseClass {
 	 */
 	public function hangup() {
 		$hangup = new Hangup();
-		$this->hangup = sprintf($hangup);
+		$this->hangup = sprintf('%s', $hangup);
 	}
 
 	/**
@@ -193,7 +193,7 @@ class Tropo extends BaseClass {
 	  	}
 	  	$message = new Message($say, $to, $channel, $network, $from, $voice, $timeout, $answerOnMedia, $headers);
 	  }
-	  $this->message = sprintf($message);
+	  $this->message = sprintf('%s', $message);
 	}
 
 	/**
@@ -210,7 +210,7 @@ class Tropo extends BaseClass {
   	  $next = (array_key_exists('next', $params)) ? $params["next"] : null;
   		$on = new On($params["event"], $next, $say);
 	  }
-		$this->on = sprintf($on);
+		$this->on = sprintf('%s', $on);
 	}
 
 	/**
@@ -258,7 +258,7 @@ class Tropo extends BaseClass {
 	  	}
 	  	$record = new Record($attempts, $allowSignals, $bargein, $beep, $choices, $format, $maxSilence, $maxTime, $method, $password, $required, $say, $timeout, $transcription, $username, $url, $voice);
 		}
-		$this->record = sprintf($record);
+		$this->record = sprintf('%s', $record);
 	}
 
 	/**
@@ -276,7 +276,7 @@ class Tropo extends BaseClass {
 			$from = isset($params["from"]) ? $params["from"] : null;
 			$redirect = new Redirect($to, $from);
 		}
-		$this->redirect = sprintf($redirect);
+		$this->redirect = sprintf('%s', $redirect);
 	}
 
 	/**
@@ -288,7 +288,7 @@ class Tropo extends BaseClass {
 	 */
 	public function reject() {
 		$reject = new Reject();
-		$this->reject = sprintf($reject);
+		$this->reject = sprintf('%s', $reject);
 	}
 
 	/**
@@ -312,7 +312,7 @@ class Tropo extends BaseClass {
 	  	$voice = isset($voice) ? $voice : $this->_voice;
 	  	$say = new Say($value, $as, $event, $voice, $allowSignals);
 		}
-		$this->say = array(sprintf($say));
+		$this->say = array(sprintf('%s', $say));
 	}
 
 	/**
@@ -334,7 +334,7 @@ class Tropo extends BaseClass {
 	  	}
 	  	$startRecording = new StartRecording($format, $method, $password, $url, $username);
 		}
-		$this->startRecording = sprintf($startRecording);
+		$this->startRecording = sprintf('%s', $startRecording);
 	}
 
 	/**
@@ -344,7 +344,7 @@ class Tropo extends BaseClass {
 	 */
 	public function stopRecording() {
 		$stopRecording = new stopRecording();
-		$this->stopRecording = sprintf($stopRecording);
+		$this->stopRecording = sprintf('%s', $stopRecording);
 	}
 
 	/**
@@ -384,7 +384,7 @@ class Tropo extends BaseClass {
 	  	}
 	  	$transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on, $allowSignals, $headers);
 		}
-		$this->transfer = sprintf($transfer);
+		$this->transfer = sprintf('%s', $transfer);
 	}
 
 	/**
@@ -721,7 +721,7 @@ class Ask extends BaseClass {
 	public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, $say=NULL, $timeout=NULL, $voice=NULL, $allowSignals=NULL, $recognizer=NULL) {
 		$this->_attempts = $attempts;
 		$this->_bargein = $bargein;
-		$this->_choices = isset($choices) ? sprintf($choices) : null ;
+		$this->_choices = isset($choices) ? sprintf('%s', $choices) : null ;
 		$this->_minConfidence = $minConfidence;
 		$this->_name = $name;
 		$this->_required = $required;
@@ -746,7 +746,7 @@ class Ask extends BaseClass {
 		if(isset($this->_say)) { $this->say = $this->_say; }
 		if (is_array($this->_say)) {
 		  foreach ($this->_say as $k => $v) {
-		    $this->_say[$k] = sprintf($v);
+		    $this->_say[$k] = sprintf('%s', $v);
 		  }
 		}
 		if(isset($this->_timeout)) { $this->timeout = $this->_timeout; }
@@ -807,7 +807,7 @@ class Call extends BaseClass {
 		$this->_answerOnMedia = $answerOnMedia;
 		$this->_timeout = $timeout;
 		$this->_headers = $headers;
-		$this->_recording = isset($recording) ? sprintf($recording) : null ;
+		$this->_recording = isset($recording) ? sprintf('%s', $recording) : null ;
 		$this->_allowSignals = $allowSignals;
 	}
 
@@ -901,7 +901,7 @@ class Conference extends BaseClass {
 		$this->_name = $name;
 		$this->_id = $id;
 		$this->_mute = $mute;
-		$this->_on = isset($on) ? sprintf($on) : null;
+		$this->_on = isset($on) ? sprintf('%s', $on) : null;
 		$this->_playTones = $playTones;
 		$this->_required = $required;
 		$this->_terminator = $terminator;
@@ -963,7 +963,7 @@ class Message extends BaseClass {
 	 * @param array $headers
 	 */
 	public function __construct(Say $say, $to, $channel=null, $network=null, $from=null, $voice=null, $timeout=null, $answerOnMedia=null, Array $headers=null) {
-		$this->_say = isset($say) ? sprintf($say) : null ;
+		$this->_say = isset($say) ? sprintf('%s', $say) : null ;
 		$this->_to = $to;
 		$this->_channel = $channel;
 		$this->_network = $network;
@@ -1013,7 +1013,7 @@ class On extends BaseClass {
 	public function __construct($event=NULL, $next=NULL, Say $say=NULL) {
 		$this->_event = $event;
 		$this->_next = $next;
-		$this->_say = isset($say) ? sprintf($say) : null ;
+		$this->_say = isset($say) ? sprintf('%s', $say) : null ;
 	}
 
 	/**
@@ -1078,7 +1078,7 @@ class Record extends BaseClass {
 		$this->_allowSignals = $allowSignals;
 		$this->_bargein = $bargein;
 		$this->_beep = $beep;
-		$this->_choices = isset($choices) ? sprintf($choices) : null;
+		$this->_choices = isset($choices) ? sprintf('%s', $choices) : null;
 		$this->_format = $format;
 		$this->_maxSilence = $maxSilence;
 		$this->_maxTime = $maxTime;
@@ -1087,9 +1087,9 @@ class Record extends BaseClass {
 		if (!is_object($say)) {
 		  $say = new Say($say);
 		}
-		$this->_say = isset($say) ? sprintf($say) : null;
+		$this->_say = isset($say) ? sprintf('%s', $say) : null;
 		$this->_timeout = $timeout;
-		$this->_transcription = isset($transcription) ? sprintf($transcription) : null;
+		$this->_transcription = isset($transcription) ? sprintf('%s', $transcription) : null;
 		$this->_username = $username;
 		$this->_url = $url;
 		$this->_voice = $voice;
@@ -1137,8 +1137,8 @@ class Redirect extends BaseClass {
 	 * @param Endpoint $from
 	 */
 	public function __construct($to=NULL, $from=NULL) {
-		$this->_to = sprintf($to);
-		$this->_from = isset($from) ? sprintf($from) : null;
+		$this->_to = sprintf('%s', $to);
+		$this->_from = isset($from) ? sprintf('%s', $from) : null;
 	}
 
 	/**
@@ -1624,11 +1624,11 @@ class Transfer extends BaseClass {
 	public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL, $allowSignals=NULL, Array $headers=NULL) {
 		$this->_to = $to;
 		$this->_answerOnMedia = $answerOnMedia;
-		$this->_choices = isset($choices) ? sprintf($choices) : null;
+		$this->_choices = isset($choices) ? sprintf('%s', $choices) : null;
 		$this->_from = $from;
 		$this->_ringRepeat = $ringRepeat;
 		$this->_timeout = $timeout;
-		$this->_on = isset($on) ? sprintf($on) : null;
+		$this->_on = isset($on) ? sprintf('%s', $on) : null;
 		$this->_allowSignals = $allowSignals;
 		$this->_headers = $headers;
 	}
