@@ -1217,80 +1217,76 @@ class Result {
 		$this->_interpretation = $result->result->actions->interpretation;
 		$this->_utterance = $result->result->actions->utterance;
 		$this->_value = $result->result->actions->value;
-		$this->_concept = isset($result->result->actions->concept)
-		  ? $result->result->actions->concept
-		  : null;
-    $this->_transcription = isset($result->result->transcription)
-      ? $result->result->transcription
-      : null;
+		$this->_concept = isset($result->result->actions->concept) ? $result->result->actions->concept : null;
+    	$this->_transcription = isset($result->result->transcription) ? $result->result->transcription : null;
 	}
 
-	function getSessionId() {
+	public function getSessionId() {
 		return $this->_sessionId;
 	}
 
-	function getCallId() {
+	public function getCallId() {
 		return $this->_callId;
 	}
 
-	function getState() {
+	public function getState() {
 		return $this->_state;
 	}
 
-	function getSessionDuration() {
+	public function getSessionDuration() {
 		return $this->_sessionDuration;
 	}
 
-	function getSequence() {
+	public function getSequence() {
 		return $this->_sequence;
 	}
 
-	function isComplete() {
+	public function isComplete() {
 		return (bool) $this->_complete;
 	}
 
-	function getError() {
+	public function getError() {
 		return $this->_error;
 	}
 
-	function getActions() {
+	public function getActions() {
 		return $this->_actions;
 	}
 
-	function getName() {
+	public function getName() {
 		return $this->_name;
 	}
 
-	function getAttempts() {
+	public function getAttempts() {
 		return $this->_attempts;
 	}
 
-	function getDisposition() {
+	public function getDisposition() {
 		return $this->_disposition;
 	}
 
-	function getConfidence() {
+	public function getConfidence() {
 		return $this->_confidence;
 	}
 
-	function getInterpretation() {
+	public function getInterpretation() {
 		return $this->_interpretation;
 	}
 
-	function getConcept() {
+	public function getConcept() {
 		return $this->_concept;
 	}
 
-	function getUtterance() {
+	public function getUtterance() {
 		return $this->_utterance;
 	}
 
-	function getValue() {
+	public function getValue() {
 		return $this->_value;
 	}
 
-  function getTranscription() {
-    return $this->_transcription;
+  	public function getTranscription() {
+    	return $this->_transcription;
   }
 }
 
@@ -1350,7 +1346,8 @@ class Say extends BaseClass {
 class Session {
 
 	private $_id;
-	private $_accountID;
+	private $_accountId;
+	private $_callId;
 	private $_timestamp;
 	private $_userType;
 	private $_initialText;
@@ -1379,12 +1376,13 @@ class Session {
 		}
 		$this->_id = $session->session->id;
 		$this->_accountId = $session->session->accountId;
+		$this->_callId = $session->session->callId;
 		$this->_timestamp = $session->session->timestamp;
 		$this->_userType = $session->session->userType;
 		$this->_initialText = $session->session->initialText;
-  	$this->_to = isset($session->session->to)
+  		$this->_to = isset($session->session->to)
 		  ? array(
-		    "id" => $session->session->to->id,
+		    "id" => $session->session->to->id,	
 		    "channel" => $session->session->to->channel,
 		    "name" => $session->session->to->name,
 		    "network" => $session->session->to->network
@@ -1421,6 +1419,10 @@ class Session {
 
 	public function getAccountID() {
 		return $this->_accountId;
+	}
+	
+	public function getcallid() {
+		return $this->_callId;
 	}
 
 	public function getTimeStamp() {
