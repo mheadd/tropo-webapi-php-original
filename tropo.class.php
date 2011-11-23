@@ -1421,7 +1421,7 @@ class Session {
 		return $this->_accountId;
 	}
 	
-	public function getcallid() {
+	public function getCallId() {
 		return $this->_callId;
 	}
 

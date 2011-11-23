@@ -95,8 +95,8 @@ class EventAPI extends RestBase {
 class ProvisioningAPI extends RestBase {
 	
 	// URLs for the Tropo provisioning API.
-	const ApplicationProvisioningURLBase = 'http://api.tropo.com/v1/';
-	const ExchangeProvisioningURLBase = 'http://api.tropo.com/v1/exchanges';
+	const ApplicationProvisioningURLBase = 'https://api.tropo.com/v1/';
+	const ExchangeProvisioningURLBase = 'https://api.tropo.com/v1/exchanges';
 		
 	public function __construct($userid, $password) {
 		parent::__construct($userid, $password);
