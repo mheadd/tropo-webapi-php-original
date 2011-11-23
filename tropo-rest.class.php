@@ -40,15 +40,16 @@ class SessionAPI extends RestBase {
 	    $result = curl_exec($this->ch);
 	    $error = curl_error($this->ch);
 		parent::__destruct();
-	    
-		if($result === false) {
+
+		//check result and parse
+		if($result === false OR !($xml = new SimpleXMLElement($result))) {
 	    	throw new Exception('An error occurred: '.$error);
-		 } else {
-		   if (strpos($result, self::SessionResponse) === false) {
-		     throw new Exception('An error occurred: Tropo session launch failed.');
-		   }
-		  return true;
-		 }		 
+		} else {
+		  if(!($xml->success == 'true')){
+		    throw new Exception('An error occurred: Tropo session launch failed.');
+		  }
+		  return trim((string) $xml->id);
+	    }		 
 	}	
 }
 
