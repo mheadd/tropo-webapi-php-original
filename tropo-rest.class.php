@@ -298,7 +298,7 @@ class ProvisioningAPI extends RestBase {
 		if($this->result === false) {
 	    	throw new Exception('An error occurred: '.$this->error);
 		 } else {
-		   if ($this->curl_http_code != '200') {
+		   if (substr($this->curl_http_code, 0, 1) != '2') {
 		     $e = 'An error occurred: Invalid HTTP response returned: '.$this->curl_http_code . '  - Details: ' . $this->result;
          throw new Exception($e);
 		   }
