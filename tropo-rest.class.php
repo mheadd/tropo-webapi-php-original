@@ -96,11 +96,19 @@ class EventAPI extends RestBase {
 class ProvisioningAPI extends RestBase {
 	
 	// URLs for the Tropo provisioning API.
-	const ApplicationProvisioningURLBase = 'https://api.tropo.com/v1/';
-	const ExchangeProvisioningURLBase = 'https://api.tropo.com/v1/exchanges';
+	//const ApplicationProvisioningURLBase = 'https://api.tropo.com/v1/';
+	var $base = 'https://api.tropo.com/v1/';
 		
 	public function __construct($userid, $password) {
 		parent::__construct($userid, $password);
+	}
+	
+	public function setBaseURL($url) {
+	  $this->base = $url;
+	}
+	
+	protected function getBaseURL() {
+	  return $this->base;
 	}
 	
 	/**
@@ -117,7 +125,7 @@ class ProvisioningAPI extends RestBase {
 	public function createApplication($href, $name, $voiceUrl, $messagingUrl, $platform, $partition) {
 		
 		$payload = json_encode(new Application($href, $name, $voiceUrl, $messagingUrl, $platform, $partition));
-		$url = self::ApplicationProvisioningURLBase.'applications';
+		$url = $this->base . 'applications';
 		return self::makeAPICall('POST', $url, $payload);
 		
 	}
@@ -140,7 +148,7 @@ class ProvisioningAPI extends RestBase {
 	public function updateApplicationAddress($applicationID, $type, $prefix=NULL, $number=NULL, $city=NULL, $state=NULL, $channel=NULL, $username=NULL, $password=NULL, $token=NULL) {
 		
 		$payload = json_encode(new Address($type, $prefix, $number, $city, $state, $channel, $username, $password, $token));
-		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID.'/addresses';		
+		$url = $this->base . 'applications/'.$applicationID.'/addresses';		
 		return self::makeAPICall('POST', $url, $payload);
 		
 	}
@@ -160,7 +168,7 @@ class ProvisioningAPI extends RestBase {
 	public function updateApplicationProperty($applicationID, $href=NULL, $name=NULL, $voiceUrl=NULL, $messagingUrl=NULL, $platform=NULL, $partition=NULL) {
 		
 		$payload = json_encode(new Application($href, $name, $voiceUrl, $messagingUrl, $platform, $partition));
-		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID;		
+		$url = $this->base . 'applications/'.$applicationID;		
 		return self::makeAPICall('PUT', $url, $payload);
 		
 	}
@@ -173,7 +181,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function deleteApplication($applicationID) {
 		
-		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID;
+		$url = $this->base . 'applications/'.$applicationID;
 		return self::makeAPICall('DELETE', $url);
 		
 	}
@@ -188,7 +196,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function deleteApplicationAddress($applicationID, $type, $address) {
 		
-		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID.'/addresses/'.$type.'/'.$address;
+		$url = $this->base . 'applications/'.$applicationID.'/addresses/'.$type.'/'.$address;
 		return self::makeAPICall('DELETE', $url);
 		
 	}
@@ -200,7 +208,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewApplications() {
 		
-		$url = self::ApplicationProvisioningURLBase.'applications';
+		$url = $this->base . 'applications';
 		return self::makeAPICall('GET', $url);
 		
 	}
@@ -213,7 +221,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewSpecificApplication($applicationID) {
 		
-		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID;
+		$url = $this->base . 'applications/'.$applicationID;
 		return self::makeAPICall('GET', $url);
 		
 	}
@@ -226,7 +234,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewAddresses($applicationID) {
 		
-		$url = self::ApplicationProvisioningURLBase.'applications/'.$applicationID.'/addresses';
+		$url = $this->base . 'applications/'.$applicationID.'/addresses';
 		return self::makeAPICall('GET', $url);
 		
 	}
@@ -238,7 +246,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewExchanges() {
 		
-		$url = self::ExchangeProvisioningURLBase;
+		$url = $this->base . '/exchanges';
 		return self::makeAPICall('GET', $url);
 
 	}
@@ -251,7 +259,7 @@ class ProvisioningAPI extends RestBase {
 	 * @param string $payload
 	 * @return string JSON
 	 */
-	private function makeAPICall($method, $url, $payload=NULL) {
+	protected function makeAPICall($method, $url, $payload=NULL) {
 		
 		if(($method == 'POST' || $method == 'PUT') && !isset($payload)) {
 			throw new Exception("Method $method requires payload for request body.");
