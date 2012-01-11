@@ -246,7 +246,7 @@ class ProvisioningAPI extends RestBase {
 	 */
 	public function viewExchanges() {
 		
-		$url = $this->base . '/exchanges';
+		$url = $this->base . 'exchanges';
 		return self::makeAPICall('GET', $url);
 
 	}
