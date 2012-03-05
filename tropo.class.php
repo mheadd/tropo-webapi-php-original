@@ -263,8 +263,6 @@ public function record($record) {
     }
     elseif (isset($params["voice"])) {
       $voice = $params["voice"];
-    }else{
-      $voice = NULL;
     }
 
     $p = array('attempts', 'bargein', 'beep', 'format', 'maxTime', 'maxSilence', 'method', 'password', 'required', 'say', 'timeout', 'username', 'url', 'voice');
