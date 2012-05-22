@@ -11,13 +11,22 @@
 class SessionAPI extends RestBase {
 	
 	// URL for the Tropo session API.
-	const SessionURL = 'http://api.tropo.com/1.0/sessions?action=create&token=';
+	var $base = 'https://api.tropo.com/1.0/';
 	
 	// Success response from Tropo Session API.
 	const SessionResponse = '<success>true</success>';
 	
 	public function __construct() {
 		parent::__construct();
+	}
+	
+		
+	public function setBaseURL($url) {
+	  $this->base = $url;
+	}
+	
+	protected function getBaseURL() {
+	  return $this->base;
 	}
 	
 	/**
@@ -35,10 +44,10 @@ class SessionAPI extends RestBase {
 		    }	
 		}
 		
-	    curl_setopt($this->ch, CURLOPT_URL, self::SessionURL.$token.$querystring);
+	  curl_setopt($this->ch, CURLOPT_URL, $this->base . 'sessions?action=create&token=' . $token . $querystring);
 		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
-	    $result = curl_exec($this->ch);
-	    $error = curl_error($this->ch);
+    $result = curl_exec($this->ch);
+    $error = curl_error($this->ch);
 		parent::__destruct();
 
 		//check result and parse
@@ -56,8 +65,8 @@ class SessionAPI extends RestBase {
 class EventAPI extends RestBase {
 	
 	// URL for the Tropo session API.
-	const EventURL = 'https://api.tropo.com/1.0/sessions/%session_id%/signals?action=signal&value=%value%';
-	
+	var $base = 'https://api.tropo.com/1.0/';
+		
 	// Success response from Tropo Session API.
 	const EventResponse = '<signal><status>QUEUED</status></signal>';
 	
@@ -74,7 +83,8 @@ class EventAPI extends RestBase {
 	 */
 	public function sendEvent($session_id, $event) {
 		
-		$url = str_replace(array('%session_id%', '%value%'), array($session_id, $event), self::EventURL);
+		$url = $this->base . '%session_id%/signals?action=signal&value=%value%';
+		$url = str_replace(array('%session_id%', '%value%'), array($session_id, $event), $url);
 		
 	    curl_setopt($this->ch, CURLOPT_URL, $url);
 		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 1);
@@ -349,6 +359,8 @@ class RestBase {
 	public function __destruct() {
 		@ curl_close($this->ch);	
 	}	
+	
+	
 }
 
 /**
