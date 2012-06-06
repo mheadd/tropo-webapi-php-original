@@ -38,6 +38,7 @@ class SessionAPI extends RestBase {
 	 */
 	public function createSession($token, Array $params = null) {
 		
+		$querystring = '';
 		if(isset($params)) {
 			foreach ($params as $key=>$value) {
 		    	@ $querystring .= '&'. urlencode($key) . '=' . urlencode($value);
