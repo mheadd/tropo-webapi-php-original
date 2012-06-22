@@ -29,6 +29,7 @@ $app->map('/', 'start')
 $app->post('/restart', 'start');
   
 function start() {
+  global $voice;
   $tropo = new Tropo();
   $tropo->setVoice($voice);
 
@@ -53,6 +54,7 @@ function start() {
  
 $app->post('/conference', 'conference');
 function conference() {
+  global $voice;
   $tropo = new Tropo();
   $tropo->setVoice($voice);
 
