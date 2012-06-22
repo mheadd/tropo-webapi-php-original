@@ -159,6 +159,8 @@ class Tropo extends BaseClass {
   	      $$option = $params[$option];
   	    }
 	  	}
+	  	$id = (empty($id) && !empty($conference)) ? $conference : $id;
+	  	$name = (empty($name)) ? (string)$id : $name;
 	  	$conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator, $allowSignals);
 		}
 		$this->conference = sprintf('%s', $conference);
@@ -899,7 +901,7 @@ class Conference extends BaseClass {
 	 */
 	public function __construct($name, $id=NULL, $mute=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL, $allowSignals=NULL) {
 		$this->_name = $name;
-		$this->_id = $id;
+		$this->_id = (string) $id;
 		$this->_mute = $mute;
 		$this->_on = isset($on) ? sprintf('%s', $on) : null;
 		$this->_playTones = $playTones;
