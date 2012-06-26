@@ -12,7 +12,7 @@ $to = "+".$session->getParameters("numbertodial");
 $name = $session->getParameters("customername"); 
 $msg = $session->getParameters("msg"); 
 
-//extracts the contects of the passed parameters and assigns them as variables for later use
+//extracts the contents of the passed parameters and assigns them as variables for later use
 
 $tropo = new Tropo(); 
      
