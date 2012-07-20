@@ -32,7 +32,7 @@ if ($called['channel'] == "TEXT") {
   $tropo->ask("This will catch the first text", array('choices' => '[ANY]'));
 
   // ... or, you can grab that first text like this straight from the session.
-  $messsage = $tropo->getInitialText();
+  $messsage = $session->getInitialText();
 
   $tropo->say("You said " . $message);
 } else {
