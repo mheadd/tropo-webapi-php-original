@@ -6,7 +6,7 @@ TropoPHP is a set of PHP classes for working with [Tropo's cloud communication s
 Requirements
 ============
 
- * PHP 5.3.0 or greater
+ * PHP 5.3.0 or greater (5.4 not yet supported)
  * PHP Notices disabled (All error reporting disabled is recommended for production use)
 
 Usage
