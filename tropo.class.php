@@ -152,7 +152,7 @@ class Tropo extends BaseClass {
   */
   public function conference($conference, Array $params=NULL) {
     if(!is_object($conference)) {
-      $p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator', 'allowSignals');
+      $p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator', 'allowSignals', 'interdigitTimeout');
       foreach ($p as $option) {
         $$option = null;
         if (is_array($params) && array_key_exists($option, $params)) {
@@ -161,7 +161,7 @@ class Tropo extends BaseClass {
       }
       $id = (empty($id) && !empty($conference)) ? $conference : $id;
       $name = (empty($name)) ? (string)$id : $name;
-      $conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator, $allowSignals);
+      $conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator, $allowSignals, $interdigitTimeout);
     }
     $this->conference = sprintf('%s', $conference);
   }
@@ -898,6 +898,7 @@ class Conference extends BaseClass {
   private $_required;
   private $_terminator;
   private $_allowSignals;
+  private $_interdigitTimeout;
 
 
   /**
@@ -911,8 +912,9 @@ class Conference extends BaseClass {
   * @param boolean $required
   * @param string $terminator
   * @param string|array $allowSignals
+  * @param int $interdigitTimeout
   */
-  public function __construct($name, $id=NULL, $mute=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL, $allowSignals=NULL) {
+  public function __construct($name, $id=NULL, $mute=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL, $allowSignals=NULL, $interdigitTimeout=NULL) {
     $this->_name = $name;
     $this->_id = (string) $id;
     $this->_mute = $mute;
@@ -921,6 +923,7 @@ class Conference extends BaseClass {
     $this->_required = $required;
     $this->_terminator = $terminator;
     $this->_allowSignals = $allowSignals;
+    $this->_interdigitTimeout = $interdigitTimeout;
   }
 
   /**
@@ -936,6 +939,7 @@ class Conference extends BaseClass {
     if(isset($this->_required)) { $this->required = $this->_required; }
     if(isset($this->_terminator)) { $this->terminator = $this->_terminator; }
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
+    if(isset($this->_interdigitTimeout)) { $this->interdigitTimeout = $this->_interdigitTimeout; }
     return $this->unescapeJSON(json_encode($this));
   }
 }
