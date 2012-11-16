@@ -396,6 +396,23 @@ class Tropo extends BaseClass {
     }
     $this->transfer = sprintf('%s', $transfer);
   }
+  
+  /**
+  * Makes the Tropo sleep an active call in milliseconds
+  *
+  * @param Interger $milliseconds
+  * @param String or Array $allowSignals
+  * @see https://www.tropo.com/docs/webapi/wait.htm
+  */
+  public function wait($wait) {
+     if (!is_object($wait) && is_array($wait)){
+        $params = $wait;
+        $signal = isset($params['allowSignals']) ? $params['allowSignals'] : null;
+        $wait = new Wait($params["milliseconds"], $signal);
+    }
+    $this->wait = sprintf('%s', $wait);
+    
+  }
 
   /**
   * Launches a new session with the Tropo Session API.
@@ -1697,6 +1714,38 @@ class Transfer extends BaseClass {
     if(isset($this->_on)) { $this->on = $this->_on; }
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
     if(count($this->_headers)) { $this->headers = $this->_headers; }
+    return $this->unescapeJSON(json_encode($this));
+  }
+}
+
+/**
+* Defines a time period to sleep in milliseconds
+* @package TropoPHP_Support
+*
+*/
+class Wait extends BaseClass {
+
+  private $_milliseconds;
+  private $_allowSignals;
+
+  /**
+  * Class constructor
+  *
+  * @param integer $milliseconds
+  * @param string|array $allowSignals
+  */
+  public function __construct($milliseconds, $allowSignals=NULL) {
+    $this->_milliseconds = $milliseconds;
+    $this->_allowSignals = $allowSignals;
+  }
+
+  /**
+  * Renders object in JSON format.
+  *
+  */
+  public function __toString() {
+    $this->milliseconds = $this->_milliseconds; 
+    if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
     return $this->unescapeJSON(json_encode($this));
   }
 }
