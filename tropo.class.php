@@ -95,7 +95,7 @@ class Tropo extends BaseClass {
   */
   public function ask($ask, Array $params=NULL) {
     if(!is_object($ask)) {
-      $p = array('as','event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout', 'allowSignals', 'recognizer');
+      $p = array('as','event','voice','attempts', 'bargein', 'minConfidence', 'name', 'required', 'timeout', 'allowSignals', 'recognizer', 'interdigitTimeout', 'sensitivity', 'speechCompleteTimeout', 'speechIncompleteTimeout');
       foreach ($p as $option) {
         $$option = null;
         if (is_array($params) && array_key_exists($option, $params)) {
@@ -116,7 +116,7 @@ class Tropo extends BaseClass {
         $voice = $this->_voice;
       }
       $choices = isset($params["choices"]) ? new Choices($params["choices"], $params["mode"], $params["terminator"]) : null;
-      $ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice, $allowSignals, $recognizer);
+      $ask = new Ask($attempts, $bargein, $choices, $minConfidence, $name, $required, $say, $timeout, $voice, $allowSignals, $recognizer, $interdigitTimeout, $sensitivity, $speechCompleteTimeout, $speechIncompleteTimeout);
     }
     $this->ask = sprintf('%s', $ask);
   }
@@ -702,6 +702,10 @@ class Ask extends BaseClass {
   private $_voice;
   private $_allowSignals;
   private $_recognizer;
+  private $_interdigitTimeout;
+  private $_sensitivity;
+  private $_speechCompleteTimeout;
+  private $_speechIncompleteTimeout;
 
   /**
   * Class constructor
@@ -716,8 +720,12 @@ class Ask extends BaseClass {
   * @param int $timeout
   * @param string $voice
   * @param string|array $allowSignals
+  * @param integer $interdigitTimeout
+  * @param integer $sensitivity 
+  * @param float $speechCompleteTimeout
+  * @param float $speechIncompleteTimeout
   */
-  public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, $say=NULL, $timeout=NULL, $voice=NULL, $allowSignals=NULL, $recognizer=NULL) {
+  public function __construct($attempts=NULL, $bargein=NULL, Choices $choices=NULL, $minConfidence=NULL, $name=NULL, $required=NULL, $say=NULL, $timeout=NULL, $voice=NULL, $allowSignals=NULL, $recognizer=NULL, $interdigitTimeout=NULL, $sensitivity=NULL, $speechCompleteTimeout=NULL, $speechIncompleteTimeout=NULL) {
     $this->_attempts = $attempts;
     $this->_bargein = $bargein;
     $this->_choices = isset($choices) ? sprintf('%s', $choices) : null ;
@@ -729,6 +737,10 @@ class Ask extends BaseClass {
     $this->_voice = $voice;
     $this->_allowSignals = $allowSignals;
     $this->_recognizer = $recognizer;
+    $this->_interdigitTimeout = $interdigitTimeout;
+    $this->_sensitivity = $sensitivity;
+    $this->_speechCompleteTimeout = $speechCompleteTimeout;
+    $this->_speechIncompleteTimeout = $speechIncompleteTimeout;
   }
 
   /**
@@ -752,6 +764,10 @@ class Ask extends BaseClass {
     if(isset($this->_voice)) { $this->voice = $this->_voice; }
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
     if(isset($this->_recognizer)) { $this->recognizer = $this->_recognizer; }
+    if(isset($this->_interdigitTimeout)) { $this->interdigitTimeout = $this->_interdigitTimeout; }
+    if(isset($this->_sensitivity)) { $this->sensitivity = $this->_sensitivity; }
+    if(isset($this->_speechCompleteTimeout)) { $this->speechCompleteTimeout = $this->_speechCompleteTimeout; }
+    if(isset($this->_speechIncompleteTimeout)) { $this->speechIncompleteTimeout = $this->_speechIncompleteTimeout; }
     return $this->unescapeJSON(json_encode($this));
   }
 
