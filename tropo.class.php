@@ -208,7 +208,12 @@ class Tropo extends BaseClass {
   public function on($on) {
     if (!is_object($on) && is_array($on))	{
       $params = $on;
-      $say = (array_key_exists('say', $params)) ? new Say($params["say"]) : null;
+      if ((array_key_exists('say', $params) && ((array_key_exists('voice', $params) || isset($this->_voice))))){
+        $v = isset($params["voice"]) ? $params["voice"] : $this->_voice;
+        $say = new Say($params["say"], null, null, $v);
+      }else{
+        $say = (array_key_exists('say', $params)) ? new Say($params["say"]) : null;
+      }
       $next = (array_key_exists('next', $params)) ? $params["next"] : null;
       $on = new On($params["event"], $next, $say);
     }
@@ -1021,6 +1026,7 @@ class On extends BaseClass {
   private $_event;
   private $_next;
   private $_say;
+  private $_voice;
 
   /**
   * Class constructor
@@ -1028,11 +1034,13 @@ class On extends BaseClass {
   * @param string $event
   * @param string $next
   * @param Say $say
+  * @param string $voice
   */
-  public function __construct($event=NULL, $next=NULL, Say $say=NULL) {
+  public function __construct($event=NULL, $next=NULL, Say $say=NULL, $voice=Null) {
     $this->_event = $event;
     $this->_next = $next;
     $this->_say = isset($say) ? sprintf('%s', $say) : null ;
+    $this->_voice = $voice;
   }
 
   /**
@@ -1043,6 +1051,7 @@ class On extends BaseClass {
     if(isset($this->_event)) { $this->event = $this->_event; }
     if(isset($this->_next)) { $this->next = $this->_next; }
     if(isset($this->_say)) { $this->say = $this->_say; }
+    if(isset($this->_voice)) { $this->voice = $this->_voice; }
     return $this->unescapeJSON(json_encode($this));
   }
 }
