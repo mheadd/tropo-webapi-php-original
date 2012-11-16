@@ -639,12 +639,6 @@ class Tropo extends BaseClass {
 abstract class BaseClass {
 
 	/**
-	 * Class constructor
-	 * @abstract __construct()
-	 */
-	abstract public function __construct();
-
-	/**
 	 * toString Function
 	 * @abstract __toString()
 	 */
