@@ -217,7 +217,7 @@ class Tropo extends BaseClass {
       $next = (array_key_exists('next', $params)) ? $params["next"] : null;
       $on = new On($params["event"], $next, $say);
     }
-    $this->on = sprintf('%s', $on);
+    $this->on = array(sprintf('%s', $on));
   }
 
   /**
@@ -386,13 +386,40 @@ class Tropo extends BaseClass {
         if (is_object($params['on'])) {
           $on = $params['on'];
         } else {
-          if (strtolower($params['on']['event']) != 'ring') {
-            throw new TropoException("The only event allowed on transfer is 'ring'"); 
+          if (strtolower($params['on']['event']) == 'ring') {
+            $on = on(array('ring', null, new Say($params['on']['say']), null, null));
+          }elseif (strtolower($params['on']['event']) == 'connect') {
+
+            $comma = "";
+            $on = "";
+
+            foreach($params['on']['whisper'] as $key){
+              foreach($key as $k => $v){
+
+                switch($k){
+                  case 'ask':
+                  $on = $on . $comma . new On('connect', null, null, null,$v,null,null,"ask");
+                  break;
+                  case 'say':
+                  $on = $on . $comma . new On('connect', null, $v, null,null,null,null,"say");
+                  break;
+                  case 'wait':
+                  $on = $on . $comma . new On('connect', null, null, null,null,null,$v,"wait");
+                  break;
+                  case 'message':
+                  $on = $on . $comma . new On('connect', null, null, null,null,$v,null,"message");
+                  break;   
+                }
+                $comma = ",";
+              }
+            }
+
+          }else{
+            throw new TropoException("The only event allowed on transfer is 'ring' or 'connect'"); 
           }
-          $on = new On('ring', null, new Say($params['on']['say']));
         }
       }
-      $transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on, $allowSignals, $headers);
+      $transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, sprintf('%s',$on), $allowSignals, $headers);
     }
     $this->transfer = sprintf('%s', $transfer);
   }
@@ -1044,6 +1071,10 @@ class On extends BaseClass {
   private $_next;
   private $_say;
   private $_voice;
+  private $_ask;
+  private $_message;
+  private $_wait;
+  private $_order;
 
   /**
   * Class constructor
@@ -1053,11 +1084,15 @@ class On extends BaseClass {
   * @param Say $say
   * @param string $voice
   */
-  public function __construct($event=NULL, $next=NULL, Say $say=NULL, $voice=Null) {
+  public function __construct($event=NULL, $next=NULL, Say $say=NULL, $voice=Null, $ask=NULL, Message $message=NULL, Wait $wait=NULL, $order=NULL) {
     $this->_event = $event;
     $this->_next = $next;
     $this->_say = isset($say) ? sprintf('%s', $say) : null ;
     $this->_voice = $voice;
+    $this->_ask = isset($ask) ? sprintf('%s', $ask) : null;
+    $this->_message = isset($message) ? sprintf('%s', $message) : null;
+    $this->_wait = isset($wait) ? sprintf('%s', $wait) : null;
+    $this->_order = $order;
   }
 
   /**
@@ -1065,11 +1100,31 @@ class On extends BaseClass {
   *
   */
   public function __toString() {
-    if(isset($this->_event)) { $this->event = $this->_event; }
-    if(isset($this->_next)) { $this->next = $this->_next; }
-    if(isset($this->_say)) { $this->say = $this->_say; }
-    if(isset($this->_voice)) { $this->voice = $this->_voice; }
-    return $this->unescapeJSON(json_encode($this));
+    
+    if($this->_event == "connect") {  
+      $this->event =  $this->_event;        
+      switch($this->_order){
+        case 'ask':
+        $this->ask = $this->_ask;
+        break;
+        case  'say':
+        $this->say = $this->_say;
+        break;
+        case 'wait':
+        $this->ask = $this->_ask;  
+        break;
+        case 'message':
+        $this->message = $this->_message;
+        break;
+      }          
+      return $this->unescapeJSON(json_encode(($this)));
+    }else{
+      if(isset($this->_event)) { $this->event = $this->_event; }
+      if(isset($this->_next)) { $this->next = $this->_next; }
+      if(isset($this->_say)) { $this->say = $this->_say; }
+      if(isset($this->_voice)) { $this->voice = $this->_voice; }
+      return $this->unescapeJSON(json_encode($this));
+    }
   }
 }
 
@@ -1695,7 +1750,7 @@ class Transfer extends BaseClass {
     $this->_from = $from;
     $this->_ringRepeat = $ringRepeat;
     $this->_timeout = $timeout;
-    $this->_on = isset($on) ? sprintf('%s', $on) : null;
+    $this->_on = isset($on) ? array(sprintf('%s', $on)) : null;
     $this->_allowSignals = $allowSignals;
     $this->_headers = $headers;
   }
