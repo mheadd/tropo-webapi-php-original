@@ -1,5 +1,5 @@
 <?php
-require 'updateWebAPI/tropo-webapi-php/tropo.class.php';
+require 'tropo.class.php';
 error_reporting(0);
 
 $tropo = new Tropo(); 
