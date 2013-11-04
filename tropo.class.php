@@ -130,14 +130,14 @@ class Tropo extends BaseClass {
   */
   public function call($call, Array $params=NULL) {
     if(!is_object($call)) {
-      $p = array('to', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording', 'allowSignals');
+      $p = array('to', 'from', 'network', 'channel', 'answerOnMedia', 'timeout', 'headers', 'recording', 'allowSignals', 'machineDetection', 'voice');
       foreach ($p as $option) {
         $$option = null;
         if (is_array($params) && array_key_exists($option, $params)) {
           $$option = $params[$option];
         }
       }
-      $call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording, $allowSignals);
+      $call = new Call($call, $from, $network, $channel, $answerOnMedia, $timeout, $headers, $recording, $allowSignals, $machineDetection, $voice);
     }
     $this->call = sprintf('%s', $call);
   }
@@ -152,7 +152,7 @@ class Tropo extends BaseClass {
   */
   public function conference($conference, Array $params=NULL) {
     if(!is_object($conference)) {
-      $p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator', 'allowSignals', 'interdigitTimeout');
+      $p = array('name', 'id', 'mute', 'on', 'playTones', 'required', 'terminator', 'allowSignals', 'interdigitTimeout', 'joinPrompt', 'leavePrompt', 'voice');
       foreach ($p as $option) {
         $$option = null;
         if (is_array($params) && array_key_exists($option, $params)) {
@@ -161,7 +161,7 @@ class Tropo extends BaseClass {
       }
       $id = (empty($id) && !empty($conference)) ? $conference : $id;
       $name = (empty($name)) ? (string)$id : $name;
-      $conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator, $allowSignals, $interdigitTimeout);
+      $conference = new Conference($name, $id, $mute, $on, $playTones, $required, $terminator, $allowSignals, $interdigitTimeout, $joinPrompt, $leavePrompt, $voice);
     }
     $this->conference = sprintf('%s', $conference);
   }
@@ -849,6 +849,8 @@ class Call extends BaseClass {
   private $_headers;
   private $_recording;
   private $_allowSignals;
+  private $_machineDetection;
+  private $_voice;
 
   /**
   * Class constructor
@@ -863,7 +865,7 @@ class Call extends BaseClass {
   * @param StartRecording $recording
   * @param string|array $allowSignals
   */
-  public function __construct($to, $from=NULL, $network=NULL, $channel=NULL, $answerOnMedia=NULL, $timeout=NULL, Array $headers=NULL, StartRecording $recording=NULL, $allowSignals=NULL) {
+  public function __construct($to, $from=NULL, $network=NULL, $channel=NULL, $answerOnMedia=NULL, $timeout=NULL, Array $headers=NULL, StartRecording $recording=NULL, $allowSignals=NULL, $machineDetection=NULL, $voice=NULL) {
     $this->_to = $to;
     $this->_from = $from;
     $this->_network = $network;
@@ -873,6 +875,8 @@ class Call extends BaseClass {
     $this->_headers = $headers;
     $this->_recording = isset($recording) ? sprintf('%s', $recording) : null ;
     $this->_allowSignals = $allowSignals;
+    $this->_machineDetection = $machineDetection;
+    $this->_voice = $voice;
   }
 
   /**
@@ -889,6 +893,16 @@ class Call extends BaseClass {
     if(count($this->_headers)) { $this->headers = $this->_headers; }
     if(isset($this->_recording)) { $this->recording = $this->_recording; }
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
+    if(isset($this->_machineDetection)) {
+      if(is_bool($this->_machineDetection)){
+        $this->machineDetection = $this->_machineDetection; 
+      }else{
+        $this->machineDetection->introduction = $this->_machineDetection; 
+        if(isset($this->_voice)){
+          $this->machineDetection->voice = $this->_voice; 
+        }
+      }
+    }
     return $this->unescapeJSON(json_encode($this));
   }
 }
@@ -948,6 +962,9 @@ class Conference extends BaseClass {
   private $_terminator;
   private $_allowSignals;
   private $_interdigitTimeout;
+  private $_joinPrompt;
+  private $_leavePrompt;
+  private $_voice;
 
 
   /**
@@ -963,7 +980,7 @@ class Conference extends BaseClass {
   * @param string|array $allowSignals
   * @param int $interdigitTimeout
   */
-  public function __construct($name, $id=NULL, $mute=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL, $allowSignals=NULL, $interdigitTimeout=NULL) {
+  public function __construct($name, $id=NULL, $mute=NULL, On $on=NULL, $playTones=NULL, $required=NULL, $terminator=NULL, $allowSignals=NULL, $interdigitTimeout=NULL, $joinPrompt=NULL, $leavePrompt=NULL, $voice=NULL) {
     $this->_name = $name;
     $this->_id = (string) $id;
     $this->_mute = $mute;
@@ -973,6 +990,9 @@ class Conference extends BaseClass {
     $this->_terminator = $terminator;
     $this->_allowSignals = $allowSignals;
     $this->_interdigitTimeout = $interdigitTimeout;
+    $this->_joinPrompt = $joinPrompt;
+    $this->_leavePrompt = $leavePrompt;
+    $this->_voice = $voice;
   }
 
   /**
@@ -989,6 +1009,18 @@ class Conference extends BaseClass {
     if(isset($this->_terminator)) { $this->terminator = $this->_terminator; }
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
     if(isset($this->_interdigitTimeout)) { $this->interdigitTimeout = $this->_interdigitTimeout; }
+    if(isset($this->_joinPrompt)) {
+       $this->joinPrompt->value = $this->_joinPrompt; 
+       if(isset($this->_voice)) { 
+         $this->joinPrompt->voice = $this->_voice; 
+       }
+    }
+    if(isset($this->_leavePrompt)) {
+       $this->leavePrompt->value = $this->_leavePrompt; 
+       if(isset($this->_voice)) { 
+         $this->leavePrompt->voice = $this->_voice; 
+       }
+    }
     return $this->unescapeJSON(json_encode($this));
   }
 }
@@ -1436,7 +1468,7 @@ class Say extends BaseClass {
   */
   public function __toString() {
     if(isset($this->_event)) { $this->event = $this->_event; }
-    $this->value = str_replace('%', '%%', $this->_value);
+    $this->value = $this->_value;
     if(isset($this->_as)) { $this->as = $this->_as; }
     if(isset($this->_voice)) { $this->voice = $this->_voice; }
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
