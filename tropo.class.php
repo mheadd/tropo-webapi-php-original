@@ -1320,6 +1320,7 @@ class Result {
   private $_confidence;
   private $_interpretation;
   private $_concept;
+  private $_userType;
   private $_utterance;
   private $_value;
   private $_transcription;
@@ -1349,6 +1350,7 @@ class Result {
     $this->_sequence = $result->result->sequence;
     $this->_complete = $result->result->complete;
     $this->_error = $result->result->error;
+    $this->_userType = $result->result->userType;
     $this->_actions = $result->result->actions;
     $this->_name = $result->result->actions->name;
     $this->_attempts = $result->result->actions->attempts;
@@ -1389,6 +1391,10 @@ class Result {
     return $this->_error;
   }
 
+  public function getUserType() {
+    return $this->_userType;
+  }
+  
   public function getActions() {
     return $this->_actions;
   }
@@ -1489,7 +1495,6 @@ class Session {
   private $_accountId;
   private $_callId;
   private $_timestamp;
-  private $_userType;
   private $_initialText;
   private $_to;
   private $_from;
@@ -1518,7 +1523,6 @@ class Session {
     $this->_accountId = $session->session->accountId;
     $this->_callId = $session->session->callId;
     $this->_timestamp = $session->session->timestamp;
-    $this->_userType = $session->session->userType;
     $this->_initialText = $session->session->initialText;
     $this->_to = isset($session->session->to)
     ? array(
@@ -1567,9 +1571,6 @@ class Session {
 
           public function getTimeStamp() {
             return $this->_timestamp;
-          }
-          public function getUserType() {
-            return $this->_userType;
           }
 
           public function getInitialText() {
