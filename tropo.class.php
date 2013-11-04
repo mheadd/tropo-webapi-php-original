@@ -710,7 +710,7 @@ abstract class BaseClass {
   * @return string
   */
   public function unescapeJSON($json) {
-    return str_replace(array("\\", "\"{", "}\""), array("", "{", "}"), $json);
+    return str_replace(array('\"', "\"{", "}\"", '\\\\\/', '\\\\'), array('"', "{", "}", '/', '\\'), $json);
   }
 }
 
