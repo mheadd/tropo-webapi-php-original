@@ -1,5 +1,5 @@
 <?php
-require 'tropo.class.php';
+require '/Users/kevinbond/Sites/php/updateWebAPI/tropo-webapi-php/tropo.class.php';
 error_reporting(0);
 
 $tropo = new Tropo(); 
@@ -24,8 +24,11 @@ array_push($whisper, $say);
 
 $tropo->say("please hold while you are transferred");
 
-//Create the connect whisper on event for the transfer
-$on = array("event" => "connect", "whisper" => $whisper); 
+//Create the connect whisper on event for the transfer with a ring event
+$on = array("event" => "connect", "whisper" => $whisper, "ring" => "http://www.phono.com/audio/holdmusic.mp3"); 
+
+//Create the connect whisper on event for the transfer without a ring event
+$on = array("event" => "connect", "whisper" => $whisper);
 
 $options = array(
   'on' => $on,
@@ -36,4 +39,5 @@ $options = array(
 $tropo->transfer("+14071234321", $options);
 $tropo->on(array("event" => "incomplete", "next" => "hangup.php", "say" => "You have opted to not accept this call. Goodbye!"));
 
+echo $tropo->RenderJson();
 ?>
