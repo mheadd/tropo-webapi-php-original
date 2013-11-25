@@ -372,7 +372,7 @@ class Tropo extends BaseClass {
         ? new Choices(null, null, $params["terminator"]) 
         : $choices;
       $to = isset($params["to"]) ? $params["to"] : $transfer;
-      $p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'allowSignals', 'headers');
+      $p = array('answerOnMedia', 'ringRepeat', 'timeout', 'from', 'allowSignals', 'headers', 'machineDetection', 'voice');
       foreach ($p as $option) {
         $$option = null;
         if (is_array($params) && array_key_exists($option, $params)) {
@@ -419,7 +419,8 @@ class Tropo extends BaseClass {
           }
         }
       }
-      $transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, sprintf('%s',$on), $allowSignals, $headers);
+      $on = $on == null ? null : sprintf('%s',$on);
+      $transfer = new Transfer($to, $answerOnMedia, $choices, $from, $ringRepeat, $timeout, $on, $allowSignals, $headers, $machineDetection, $voice);
     }
     $this->transfer = sprintf('%s', $transfer);
   }
@@ -1762,6 +1763,8 @@ class Transfer extends BaseClass {
   private $_to;
   private $_allowSignals;
   private $_headers;
+  private $_machineDetection;
+  private $_voice;
 
   /**
   * Class constructor
@@ -1776,7 +1779,7 @@ class Transfer extends BaseClass {
   * @param string|array $allowSignals
   * @param array $headers
   */
-  public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL, $allowSignals=NULL, Array $headers=NULL) {
+  public function __construct($to, $answerOnMedia=NULL, Choices $choices=NULL, $from=NULL, $ringRepeat=NULL, $timeout=NULL, $on=NULL, $allowSignals=NULL, Array $headers=NULL, $machineDetection=NULL, $voice=NULL) {
     $this->_to = $to;
     $this->_answerOnMedia = $answerOnMedia;
     $this->_choices = isset($choices) ? sprintf('%s', $choices) : null;
@@ -1786,6 +1789,8 @@ class Transfer extends BaseClass {
     $this->_on = isset($on) ? array(sprintf('%s', $on)) : null;
     $this->_allowSignals = $allowSignals;
     $this->_headers = $headers;
+    $this->_machineDetection = $machineDetection;
+    $this->_voice = $voice;
   }
 
   /**
@@ -1802,6 +1807,16 @@ class Transfer extends BaseClass {
     if(isset($this->_on)) { $this->on = $this->_on; }
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
     if(count($this->_headers)) { $this->headers = $this->_headers; }
+    if(isset($this->_machineDetection)) {
+      if(is_bool($this->_machineDetection)){
+        $this->machineDetection = $this->_machineDetection; 
+      }else{
+        $this->machineDetection->introduction = $this->_machineDetection; 
+        if(isset($this->_voice)){
+          $this->machineDetection->voice = $this->_voice; 
+        }
+      }
+    }
     return $this->unescapeJSON(json_encode($this));
   }
 }
