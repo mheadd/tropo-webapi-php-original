@@ -392,7 +392,11 @@ class Tropo extends BaseClass {
 
             $comma = "";
             $on = "";
-
+            
+            if(isset($params['on']['ring'])){
+              $on = new On('ring', null, new Say($params['on']['ring']), null, null);
+              $comma = ",";
+            }
             foreach($params['on']['whisper'] as $key){
               foreach($key as $k => $v){
 
