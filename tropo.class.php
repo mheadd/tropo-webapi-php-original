@@ -1015,16 +1015,24 @@ class Conference extends BaseClass {
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
     if(isset($this->_interdigitTimeout)) { $this->interdigitTimeout = $this->_interdigitTimeout; }
     if(isset($this->_joinPrompt)) {
-       $this->joinPrompt->value = $this->_joinPrompt; 
-       if(isset($this->_voice)) { 
-         $this->joinPrompt->voice = $this->_voice; 
-       }
+      if($this->_joinPrompt == true || $this->_joinPrompt == false){
+        $this->joinPrompt = $this->_joinPrompt; 
+      }else{
+        $this->joinPrompt->value = $this->_joinPrompt; 
+        if(isset($this->_voice)) { 
+          $this->joinPrompt->voice = $this->_voice; 
+        }
+      }
     }
     if(isset($this->_leavePrompt)) {
-       $this->leavePrompt->value = $this->_leavePrompt; 
-       if(isset($this->_voice)) { 
-         $this->leavePrompt->voice = $this->_voice; 
-       }
+      if($this->_leavePrompt == true || $this->_leavePrompt == false){
+        $this->leavePrompt = $this->_leavePrompt; 
+      }else{
+        $this->leavePrompt->value = $this->_leavePrompt; 
+        if(isset($this->_voice)) { 
+          $this->leavePrompt->voice = $this->_voice; 
+        }
+      }
     }
     return $this->unescapeJSON(json_encode($this));
   }
