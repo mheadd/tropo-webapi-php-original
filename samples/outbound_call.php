@@ -6,8 +6,8 @@
 // in your browser.
 
 // Settings! Shiny.
-$token = 'your token here';
-$number = 'the number you would like to dial';
+$token = '596c71746279775a766c6a69776d4356746d4a64754e4e74584f556f6a475265616c786a506b787667595550';
+$number = '+19177257353';
 
 // Include the Tropo library and create a Tropo object
 include_once 'tropo.class.php';
