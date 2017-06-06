@@ -311,7 +311,10 @@ class Tropo extends BaseClass {
   */
   public function say($say, Array $params=NULL) {
     if(!is_object($say)) {
-      $p = array('as', 'format', 'event','voice', 'allowSignals');
+      if(!$say) {
+        throw new Exception("Missing required property: 'value'");
+      }
+      $p = array('as', 'event','voice', 'allowSignals', 'name', 'required', 'promptLogSecurity');
       $value = $say;
       foreach ($p as $option) {
         $$option = null;
@@ -319,8 +322,20 @@ class Tropo extends BaseClass {
           $$option = $params[$option];
         }
       }
+      if(!$name) {
+        throw new Exception("Missing required property: 'name'");
+      }
       $voice = isset($voice) ? $voice : $this->_voice;
-      $say = new Say($value, $as, $event, $voice, $allowSignals);
+      $event = null;
+      $say = new Say($value, $as, $event, $voice, $allowSignals, $name, $required, $promptLogSecurity);
+    } else {
+      $say->setEvent(null);
+      if(!($say->getValue())) {
+        throw new Exception("Missing required property: 'value'");
+      }
+      if(!($say->getName())) {
+        throw new Exception("Missing required property: 'name'");
+      }
     }
     $this->say = array(sprintf('%s', $say));
   }
@@ -651,7 +666,8 @@ class Tropo extends BaseClass {
   *
   */
   public function renderJSON() {
-    header('Content-type: application/json');
+    header('Content-type: application/json;charset=utf8');
+    header('WebAPI-Lang-Ver: PHP V15.9.0 SNAPSHOT');
     echo $this;
   }
 
@@ -1460,9 +1476,23 @@ class Say extends BaseClass {
   private $_value;
   private $_as;
   private $_event;
-  private $_format;
   private $_voice;
   private $_allowSignals;
+  private $_name;
+  private $_required;
+  private $_promptLogSecurity;
+
+  public function getValue() {
+    return $this->_value;
+  }
+
+  public function getName() {
+    return $this->_name;
+  }
+
+  public function setEvent($event) {
+    $this->_event = $event;
+  }
 
   /**
   * Class constructor
@@ -1473,12 +1503,18 @@ class Say extends BaseClass {
   * @param string $voice
   * @param string|array $allowSignals
   */
-  public function __construct($value, $as=NULL, $event=NULL, $voice=NULL, $allowSignals=NULL) {
+  public function __construct($value, $as=NULL, $event=NULL, $voice=NULL, $allowSignals=NULL, $name=NULL, $required=NULL, $promptLogSecurity=NULL) {
+    if(!$value) {
+      throw new Exception("Missing required property: 'value'");
+    }
     $this->_value = $value;
     $this->_as = $as;
     $this->_event = $event;
     $this->_voice = $voice;
     $this->_allowSignals = $allowSignals;
+    $this->_name = $name;
+    $this->_required = $required;
+    $this->_promptLogSecurity = $promptLogSecurity;
   }
 
   /**
@@ -1491,6 +1527,9 @@ class Say extends BaseClass {
     if(isset($this->_as)) { $this->as = $this->_as; }
     if(isset($this->_voice)) { $this->voice = $this->_voice; }
     if(isset($this->_allowSignals)) { $this->allowSignals = $this->_allowSignals; }
+    if(isset($this->_name)) { $this->name = $this->_name; }
+    if(isset($this->_required)) { $this->required = $this->_required; }
+    if(isset($this->_promptLogSecurity)) { $this->promptLogSecurity = $this->_promptLogSecurity; }
     return $this->unescapeJSON(json_encode($this));
   }
 }
@@ -2021,22 +2060,97 @@ class AudioFormat {
 * @package TropoPHP_Support
 */
 class Voice {
-  public static $Castilian_Spanish_male = "jorge";
-  public static $Castilian_Spanish_female = "carmen";
-  public static $French_male = "bernard";
-  public static $French_female = "florence";
-  public static $US_English_male = "dave";
-  public static $US_English_female = "jill";
-  public static $British_English_male = "dave";
-  public static $British_English_female = "kate";
-  public static $German_male = "stefan";
-  public static $German_female = "katrin";
+  public static $Arabic_male_maged = "maged";
+  public static $Arabic_male_tarik = "tarik";
+  public static $Arabic_female = "laila";
+  public static $Bahasa_female = "damayanti";
+  public static $Basque_female = "miren";
+  public static $Bulgarian_female = "daria";
+  public static $Cantonese_female = "sin-ji";
+  public static $Catalan_female = "montserrat";
+  public static $Catalan_male = "jordi";
+  public static $Czech_female_iveta = "iveta";
+  public static $Czech_female_zuzana = "zuzana";
+  public static $Danish_female = "sara";
+  public static $Danish_male = "magnus";
+  public static $Belgian_Dutch_female = "ellen";
+  public static $Australian_English_female = "karen";
+  public static $Australian_English_male = "lee";
+  public static $Indian_English_female = "veena";
+  public static $Irish_English_female = "moira";
+  public static $Scottish_English_female = "fiona";
+  public static $South_African_English_female = "tessa";
+  public static $Uk_English_female_kate = "kate";
+  public static $Uk_English_female_serena = "serena";
+  public static $Uk_English_male_daniel = "daniel";
+  public static $Uk_English_male_oliver = "oliver";
+  public static $US_English_female_ava = "ava";
+  public static $US_English_female_evelyn = "evelyn";
+  public static $US_English_female_samantha = "samantha";
+  public static $US_English_female_susan = "susan";
+  public static $US_English_female_zoe = "zoe";
+  public static $US_English_female_allison = "allison";
+  public static $US_English_male_tom = "tom";
+  public static $US_English_male_victor = "victor";
+  public static $Finnish_female = "satu";
+  public static $Finnish_male = "onni";
+  public static $French_female_audrey = "audrey";
+  public static $French_female_aurelie = "aurelie";
+  public static $French_male = "thomas";
+  public static $Canadian_French_female_amelie = "amelie";
+  public static $Canadian_French_female_chantal = "chantal";
+  public static $Canadian_French_male = "nicolas";
+  public static $Galician_female = "carmela";
+  public static $German_female_anna = "anna";
+  public static $German_female_petra = "petra";
+  public static $German_male_markus = "markus";
+  public static $German_male_yannick = "yannick";
+  public static $Greek_female = "melina";
+  public static $Greek_male = "nikos";
+  public static $Hebrew_female = "carmit";
+  public static $Hindi_female = "lekha";
+  public static $Hungarian_female = "mariska";
+  public static $Italian_female_alice = "alice";
+  public static $Italian_female_federica = "federica";
   public static $Italian_male = "luca";
-  public static $Italian_female = "paola";
-  public static $Dutch_male = "willem";
-  public static $Dutch_female = "saskia";
-  public static $Mexican_Spanish_male = "carlos";
-  public static $Mexican_Spanish_female = "soledad";
+  public static $Italian_male_paola = "paola";
+  public static $Japanese_female = "kyoko";
+  public static $Japanese_male = "otoya";
+  public static $Korean_female = "sora";
+  public static $Mandarin_female = "tian-tian";
+  public static $Taiwanese_Mandarin_female = "mei-jia";
+  public static $Norwegian_female = "nora";
+  public static $Norwegian_male = "henrik";
+  public static $Polish_female_ewa = "ewa";
+  public static $Polish_female_zosia = "zosia";
+  public static $Polish_male = "krzysztof";
+  public static $Portuguese_female_catarina = "catarina";
+  public static $Portuguese_female_joana = "joana";
+  public static $Portuguese_male = "joaquim";
+  public static $Brazilian_Portuguese_female = "luciana";
+  public static $Brazilian_Portuguese_male = "felipe";
+  public static $Russian_female_katya = "katya";
+  public static $Russian_female_milena = "milena";
+  public static $Russian_male = "yuri";
+  public static $Slovak_male = "laura";
+  public static $Argentinean_Spanish_male = "diego";
+  public static $Castilian_Spanish_female = "monica";
+  public static $Castilian_Spanish_male = "jorge";
+  public static $Colombian_Spanish_female = "soledad";
+  public static $Colombian_Spanish_male = "carlos";
+  public static $Mexican_Spanish_female_angelica = "angelica";
+  public static $Mexican_Spanish_female_paulina = "paulina";
+  public static $Mexican_Spanish_male = "juan";
+  public static $Dutch_male = "xander";
+  public static $Dutch_female = "claire";
+  public static $Swedish_female_alva = "alva";
+  public static $Swedish_female_klara = "klara";
+  public static $Swedish_male = "oskar";
+  public static $Thai_female = "kanya";
+  public static $Turkish_female = "yelda";
+  public static $Turkish_male = "cem";
+  public static $Valencian_female = "empar";
+
 }
 
 /**
