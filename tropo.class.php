@@ -1836,6 +1836,12 @@ class Result {
   private $_concept;
   private $_utterance;
   private $_value;
+  private $_xml;
+  private $_uploadStatus;
+  private $_duration;
+  private $_connectedDuration;
+  private $_url;
+  private $_actionUserType;
   private $_transcription;
 
   /**
@@ -1866,15 +1872,22 @@ class Result {
     $this->_calledid = $result->result->calledid;
     $this->_userType = isset($result->result->userType) ? $result->result->userType : null;
     $this->_actions = isset($result->result->actions) ? $result->result->actions : null;
-    // $this->_name = $result->result->actions->name;
-    // $this->_attempts = $result->result->actions->attempts;
-    // $this->_disposition = $result->result->actions->disposition;
-    // $this->_confidence = $result->result->actions->confidence;
-    // $this->_interpretation = $result->result->actions->interpretation;
-    // $this->_utterance = $result->result->actions->utterance;
-    // $this->_value = $result->result->actions->value;
-    // $this->_concept = isset($result->result->actions->concept) ? $result->result->actions->concept : null;
-    // $this->_transcription = isset($result->result->transcription) ? $result->result->transcription : null;
+    if (is_object($this->_actions)) {
+      $this->_name = isset($result->result->actions->name) ? $result->result->actions->name : null;
+      $this->_attempts = isset($result->result->actions->attempts) ? $result->result->actions->attempts : null;
+      $this->_disposition = isset($result->result->actions->disposition) ? $result->result->actions->disposition : null;
+      $this->_confidence = isset($result->result->actions->confidence) ? $result->result->actions->confidence : null;
+      $this->_interpretation = isset($result->result->actions->interpretation) ? $result->result->actions->interpretation : null;
+      $this->_utterance = isset($result->result->actions->utterance) ? $result->result->actions->utterance : null;
+      $this->_value = isset($result->result->actions->value) ? $result->result->actions->value : null;
+      $this->_concept = isset($result->result->actions->concept) ? $result->result->actions->concept : null;
+      $this->_xml = isset($result->result->actions->xml) ? $result->result->actions->xml : null;
+      $this->_uploadStatus = isset($result->result->actions->uploadStatus) ? $result->result->actions->uploadStatus : null;
+      $this->_duration = isset($result->result->actions->duration) ? $result->result->actions->duration : null;
+      $this->_connectedDuration = isset($result->result->actions->connectedDuration) ? $result->result->actions->connectedDuration : null;
+      $this->_url = isset($result->result->actions->url) ? $result->result->actions->url : null;
+      $this->_actionUserType = isset($result->result->actions->userType) ? $result->result->actions->userType : null;
+    }
   }
 
   public function getSessionId() {
@@ -1917,63 +1930,123 @@ class Result {
     return $this->_actions;
   }
 
-  public function getName($action) {
+  public function getName() {
+    return $this->_name;
+  }
+
+  public function getNameFromAction($action) {
     return isset($action->name) ? $action->name : null;
   }
 
-  public function getAttempts($action) {
+  public function getAttempts() {
+    return $this->_attempts;
+  }
+
+  public function getAttemptsFromAction($action) {
     return isset($action->attempts) ? $action->attempts : null;
   }
 
-  public function getDisposition($action) {
+  public function getDisposition() {
+    return $this->_disposition;
+  }
+
+  public function getDispositionFromAction($action) {
     return isset($action->disposition) ? $action->disposition : null;
   }
 
-  public function getConfidence($action) {
+  public function getConfidence() {
+    return $this->_confidence;
+  }
+
+  public function getConfidenceFromAction($action) {
     return isset($action->confidence) ? $action->confidence : null;
   }
 
-  public function getInterpretation($action) {
+  public function getInterpretation() {
+    return $this->_interpretation;
+  }
+
+  public function getInterpretationFromAction($action) {
     return isset($action->interpretation) ? $action->interpretation : null;
   }
 
-  public function getUtterance($action) {
+  public function getUtterance() {
+    return $this->_utterance;
+  }
+
+  public function getUtteranceFromAction($action) {
     return isset($action->utterance) ? $action->utterance : null;
   }
 
-  public function getValue($action) {
+  public function getValue() {
+    return $this->_utterance;
+  }
+
+  public function getValueFromAction($action) {
     return isset($action->value) ? $action->value : null;
   }
 
-  public function getConcept($action) {
+  public function getConcept() {
+    return $this->_concept;
+  }
+
+  public function getConceptFromAction($action) {
     return isset($action->concept) ? $action->concept : null;
   }
 
-  public function getXml($action) {
+  public function getXml() {
+    return $this->_xml;
+  }
+
+  public function getXmlFromAction($action) {
     return isset($action->xml) ? $action->xml : null;
   }
 
-  public function getUploadStatus($action) {
+  public function getUploadStatus() {
+    return $this->_uploadStatus;
+  }
+
+  public function getUploadStatusFromAction($action) {
     return isset($action->uploadStatus) ? $action->uploadStatus : null;
   }
 
-  public function getDuration($action) {
+  public function getDuration() {
+    return $this->_duration;
+  }
+
+  public function getDurationFromAction($action) {
     return isset($action->duration) ? $action->duration : null;
   }
 
-  public function getConnectedDuration($action) {
+  public function getConnectedDuration() {
+    return $this->_connectedDuration;
+  }
+
+  public function getConnectedDurationFromAction($action) {
     return isset($action->connectedDuration) ? $action->connectedDuration : null;
   }
 
-  public function getUrl($action) {
+  public function getUrl() {
+    return $this->_url;
+  }
+
+  public function getUrlFromAction($action) {
     return isset($action->url) ? $action->url : null;
   }
 
-  public function getActionUserType($action) {
+  public function getActionUserType() {
+    return $this->_actionUserType;
+  }
+
+  public function getActionUserTypeFromAction($action) {
     return isset($action->userType) ? $action->userType : null;
   }
 
-  public function getTranscription($action) {
+  public function getTranscription() {
+    return $this->_transcription;
+  }
+
+  public function getTranscriptionFromAction($action) {
     return isset($action->transcription) ? $action->transcription : null;
   }
 }
