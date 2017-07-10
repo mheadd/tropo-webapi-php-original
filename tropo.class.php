@@ -442,41 +442,49 @@ class Tropo extends BaseClass {
 
       }
 
-      if ($on['say'] instanceof Say) {
+      if (array_key_exists('say', $on)) {
 
-        if(!(is_string($on['say']->getValue()) && ($on['say']->getValue() != ''))) {
+        if ($on['say'] instanceof Say) {
 
-          throw new Exception("The value of say must be a string.");
+          if(!(is_string($on['say']->getValue()) && ($on['say']->getValue() != ''))) {
+
+            throw new Exception("The value of say must be a string.");
+
+          } else {
+
+            $say = $on['say'];
+          }
+
+        } elseif (is_array($on['say'])) {
+
+          foreach ($on['say'] as $value) {
+            
+            if ($value instanceof Say) {
+
+              if(!(is_string($value->getValue()) && ($value->getValue() != ''))) {
+
+                throw new Exception("The value of say must be a string.");
+
+              }
+              
+            } else {
+
+              throw new Exception("Property: 'say' must be a Say of array or an instance of Say.");
+
+            }
+          }
+
+          $say = $on['say'];
 
         } else {
 
-          $say = $on['say'];
+          throw new Exception("Property: 'say' must be a Say of array or an instance of Say.");
         }
-
-      } elseif (is_array($on['say'])) {
-
-        foreach ($on['say'] as $value) {
-          
-          if ($value instanceof Say) {
-
-            if(!(is_string($value->getValue()) && ($value->getValue() != ''))) {
-
-              throw new Exception("The value of say must be a string.");
-
-            }
-            
-          } else {
-
-            throw new Exception("Property: 'say' must be a Say of array or an instance of Say.");
-
-          }
-        }
-
-        $say = $on['say'];
 
       } else {
 
-        throw new Exception("Property: 'say' must be a Say of array or an instance of Say.");
+        $say = null;
+        
       }
 
       $next = (array_key_exists('next', $on)) ? $on["next"] : null;
